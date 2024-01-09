@@ -10,7 +10,7 @@ import Foundation
 /// Firestore の `/books` コレクション配下に格納されている作品のデータ.
 public struct Book: Codable, Identifiable, Equatable {
     /// Firestore で Document に割り当てられている ID.
-    public var id: String
+    public var id: String?
     /// 作品のタイトル
     public let title: String
     /// 作品の URL.

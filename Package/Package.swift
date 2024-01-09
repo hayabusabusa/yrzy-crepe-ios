@@ -8,6 +8,12 @@ let package = Package(
     platforms: [.iOS(.v16)],
     products: [
         .library(
+            name: "AuthClient",
+            targets: ["AuthClient"]),
+        .library(
+            name: "AuthClientLive",
+            targets: ["AuthClientLive"]),
+        .library(
             name: "FirestoreClient",
             targets: ["FirestoreClient"]),
         .library(
@@ -26,6 +32,18 @@ let package = Package(
             from: "1.1.5"),
     ],
     targets: [
+        .target(
+            name: "AuthClient",
+            dependencies: [
+                "SharedModels",
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "AuthClientLive",
+            dependencies: [
+                "AuthClient",
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+            ]),
         .target(
             name: "FirestoreClient",
             dependencies: [

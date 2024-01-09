@@ -22,14 +22,16 @@ extension FirestoreClient: DependencyKey {
         let decoder = Firestore.Decoder()
 
         return .init { documentID in
-            let snapshot = try await db.collection(Path.books.collection)
+            let collectionPath = Path.books.collection
+            let snapshot = try await db.collection(collectionPath)
                 .document(documentID)
                 .getDocument()
             var decoded = try decoder.decode(Book.self, from: snapshot.data() ?? [:])
             decoded.id = snapshot.documentID
             return decoded
         } fetchLatestBooks: { request in
-            let snapshot = try await db.collection(Path.books.collection)
+            let collectionPath = Path.books.collection
+            let snapshot = try await db.collection(collectionPath)
                 .order(by: request.orderBy, descending: request.isDescending)
                 .start(after: [request.afterDate])
                 .limit(to: request.limit)
@@ -41,7 +43,8 @@ extension FirestoreClient: DependencyKey {
                     return decoded
                 }
         } fetchLatestFavoriteBooks: { request in
-            let snapshot = try await db.collection(Path.favorites(for: request.userID).collection)
+            let collectionPath = Path.favorites(for: request.userID).collection
+            let snapshot = try await db.collection(collectionPath)
                 .order(by: request.orderBy, descending: request.isDescending)
                 .start(after: [request.afterDate])
                 .limit(to: request.limit)
@@ -53,7 +56,8 @@ extension FirestoreClient: DependencyKey {
                     return decoded
                 }
         } fetchAdvertisements: {
-            let snapshot = try await db.collection(Path.advertisements.collection)
+            let collectionPath = Path.advertisements.collection
+            let snapshot = try await db.collection(collectionPath)
                 .order(by: "createdAt", descending: true)
                 .getDocuments()
             return try snapshot.documents

@@ -11,6 +11,14 @@ let package = Package(
             name: "Package",
             targets: ["Package"]),
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            .upToNextMajor(from: "10.19.0")),
+        .package(
+            url: "https://github.com/pointfreeco/swift-composable-architecture",
+            .upToNextMajor(from: "1.6.0")),
+    ],
     targets: [
         .target(
             name: "Package"),

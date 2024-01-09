@@ -8,6 +8,9 @@ let package = Package(
     platforms: [.iOS(.v16)],
     products: [
         .library(
+            name: "AppFeature",
+            targets: ["AppFeature"]),
+        .library(
             name: "AuthClient",
             targets: ["AuthClient"]),
         .library(
@@ -32,6 +35,9 @@ let package = Package(
             from: "1.1.5"),
     ],
     targets: [
+        .target(
+            name: "AppFeature",
+            dependencies: []),
         .target(
             name: "AuthClient",
             dependencies: [

@@ -10,7 +10,7 @@ import Foundation
 /// Firestore の `/users/{UserID}/favorites` 配下に格納されるお気に入りの作品のデータ.
 public struct FavoriteBook: Codable, Identifiable, Equatable {
     /// 作品の ID と同じ ID.
-    public let id: String
+    public var id: String
     /// 作品のタイトル.
     public let title: String
     /// 作品が追加された日付.

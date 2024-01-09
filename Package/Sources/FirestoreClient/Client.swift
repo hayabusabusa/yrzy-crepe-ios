@@ -15,19 +15,27 @@ public struct FirestoreClient {
     public var fetchBook: @Sendable (String) async throws -> Book
     /// Firestore の `/books` から日付を降順に並べたデータ一覧を取得する.
     public var fetchLatestBooks: @Sendable (LatestBooksRequest) async throws -> [Book]
+    /// Firestore の `/books/{id}` にデータが存在するかどうかを返す.
+    public var bookExists: @Sendable (String) async throws -> Bool
     /// Firestore の `/users/{userID}/favorites` から日付を降順に並べたデータ一覧を取得する.
     public var fetchLatestFavoriteBooks: @Sendable (LatestFavoriteBookRequest) async throws -> [FavoriteBook]
     /// Firestore の `/advertisements` からデータ一覧を取得する.
     public var fetchAdvertisements: @Sendable () async throws -> [Advertisement]
+    /// Firestore の `/users/{userID}/favorites/{documentID}` からデータを削除する.
+    public var removeFavoriteBook: @Sendable (RemoveFavoriteBookRequest) async throws -> Void
 
     public init(fetchBook: @Sendable @escaping (String) async throws -> Book,
                 fetchLatestBooks: @Sendable @escaping (LatestBooksRequest) async throws -> [Book],
+                bookExists: @Sendable @escaping (String) async throws -> Bool,
                 fetchLatestFavoriteBooks: @Sendable @escaping (LatestFavoriteBookRequest) async throws -> [FavoriteBook],
-                fetchAdvertisements: @Sendable @escaping () async throws -> [Advertisement]) {
+                fetchAdvertisements: @Sendable @escaping () async throws -> [Advertisement],
+                removeFavoriteBook: @Sendable @escaping (RemoveFavoriteBookRequest) async throws -> Void) {
         self.fetchBook = fetchBook
         self.fetchLatestBooks = fetchLatestBooks
+        self.bookExists = bookExists
         self.fetchLatestFavoriteBooks = fetchLatestFavoriteBooks
         self.fetchAdvertisements = fetchAdvertisements
+        self.removeFavoriteBook = removeFavoriteBook
     }
 }
 
@@ -85,6 +93,20 @@ public extension FirestoreClient {
             self.limit = limit
         }
     }
+
+    /// お気に入りに登録した作品を削除するためのリクエスト.
+    struct RemoveFavoriteBookRequest {
+        /// ユーザー ID.
+        public let userID: String
+        /// `/users/{userID}/favorites` に格納したドキュメントの ID.
+        public let documentID: String
+
+        public init(userID: String, 
+                    documentID: String) {
+            self.userID = userID
+            self.documentID = documentID
+        }
+    }
 }
 
 // MARK: - Dependencies
@@ -102,11 +124,13 @@ extension FirestoreClient: TestDependencyKey {
                  thumbnailURL: nil)
         } fetchLatestBooks: { _ in
             []
+        } bookExists: { _ in
+            false
         } fetchLatestFavoriteBooks: { _ in
             []
         } fetchAdvertisements: {
             []
-        }
+        } removeFavoriteBook: { _ in }
     }
 
     public static var testValue: FirestoreClient {
@@ -114,9 +138,13 @@ extension FirestoreClient: TestDependencyKey {
             unimplemented("\(Self.self)\(#function)")
         } fetchLatestBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
+        } bookExists: { _ in
+            unimplemented("\(Self.self)\(#function)")
         } fetchLatestFavoriteBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
         } fetchAdvertisements: {
+            unimplemented("\(Self.self)\(#function)")
+        } removeFavoriteBook: { _ in
             unimplemented("\(Self.self)\(#function)")
         }
     }

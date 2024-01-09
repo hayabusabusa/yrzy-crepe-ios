@@ -42,6 +42,12 @@ extension FirestoreClient: DependencyKey {
                     decoded.id = document.documentID
                     return decoded
                 }
+        } bookExists: { documentID in
+            let collectionPath = Path.books.collection
+            let snapshot = try await db.collection(collectionPath)
+                .document(documentID)
+                .getDocument()
+            return snapshot.exists
         } fetchLatestFavoriteBooks: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
             let snapshot = try await db.collection(collectionPath)
@@ -62,13 +68,17 @@ extension FirestoreClient: DependencyKey {
                 .getDocuments()
             return try snapshot.documents
                 .map { try decoder.decode(Advertisement.self, from: $0.data()) }
+        } removeFavoriteBook: { request in
+            let collectionPath = Path.favorites(for: request.userID).collection
+            try await db.collection(collectionPath)
+                .document(request.documentID)
+                .delete()
         }
     }
 }
 
 private struct Path {
     let collection: String
-    var document: String?
 
     static let books = Self.init(collection: "public/v1/books")
     static let advertisements = Self.init(collection: "public/v1/advertisements")

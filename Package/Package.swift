@@ -10,16 +10,38 @@ let package = Package(
         .library(
             name: "Package",
             targets: ["Package"]),
+        .library(
+            name: "FirestoreClient",
+            targets: ["FirestoreClient"]),
+        .library(
+            name: "FirestoreClientLive",
+            targets: ["FirestoreClientLive"]),
     ],
     dependencies: [
         .package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
-            .upToNextMajor(from: "10.19.0")),
+            from: "10.19.0"),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
-            .upToNextMajor(from: "1.6.0")),
+            from: "1.6.0"),
+        .package(
+            url: "https://github.com/pointfreeco/swift-dependencies",
+            from: "1.1.5"),
     ],
     targets: [
+        .target(
+            name: "FirestoreClient",
+            dependencies: [
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "FirestoreClientLive",
+            dependencies: [
+                "FirestoreClient",
+                .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
         .target(
             name: "Package"),
         .testTarget(

@@ -40,7 +40,10 @@ let package = Package(
     targets: [
         .target(
             name: "AppFeature",
-            dependencies: []),
+            dependencies: [
+                "GalleryFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]),
         .target(
             name: "AuthClient",
             dependencies: [

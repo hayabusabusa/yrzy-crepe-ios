@@ -7,17 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A54CF7E72B4AC16A008A0FFF /* AppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54CF7E62B4AC16A008A0FFF /* AppApp.swift */; };
-		A54CF7E92B4AC16A008A0FFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54CF7E82B4AC16A008A0FFF /* ContentView.swift */; };
+		A54CF7E72B4AC16A008A0FFF /* CrepeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A54CF7E62B4AC16A008A0FFF /* CrepeApp.swift */; };
 		A54CF7EB2B4AC16C008A0FFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A54CF7EA2B4AC16C008A0FFF /* Assets.xcassets */; };
 		A54CF7EE2B4AC16C008A0FFF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A54CF7ED2B4AC16C008A0FFF /* Preview Assets.xcassets */; };
+		A5B5DCC62B4D5ABA0031FE18 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A5B5DCC52B4D5ABA0031FE18 /* AppFeature */; };
+		A5B5DCC82B4D5AC00031FE18 /* AuthClientLive in Frameworks */ = {isa = PBXBuildFile; productRef = A5B5DCC72B4D5AC00031FE18 /* AuthClientLive */; };
+		A5B5DCCA2B4D5AC60031FE18 /* FirestoreClientLive in Frameworks */ = {isa = PBXBuildFile; productRef = A5B5DCC92B4D5AC60031FE18 /* FirestoreClientLive */; };
 		A5F7CB192B4BF70F005907FD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A54CF7E32B4AC16A008A0FFF /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A54CF7E62B4AC16A008A0FFF /* AppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppApp.swift; sourceTree = "<group>"; };
-		A54CF7E82B4AC16A008A0FFF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A54CF7E62B4AC16A008A0FFF /* CrepeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrepeApp.swift; sourceTree = "<group>"; };
 		A54CF7EA2B4AC16C008A0FFF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A54CF7ED2B4AC16C008A0FFF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -28,6 +29,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5B5DCC62B4D5ABA0031FE18 /* AppFeature in Frameworks */,
+				A5B5DCCA2B4D5AC60031FE18 /* FirestoreClientLive in Frameworks */,
+				A5B5DCC82B4D5AC00031FE18 /* AuthClientLive in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -39,6 +43,7 @@
 			children = (
 				A54CF7E52B4AC16A008A0FFF /* App */,
 				A54CF7E42B4AC16A008A0FFF /* Products */,
+				A5B5DCC42B4D5ABA0031FE18 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -53,8 +58,7 @@
 		A54CF7E52B4AC16A008A0FFF /* App */ = {
 			isa = PBXGroup;
 			children = (
-				A54CF7E62B4AC16A008A0FFF /* AppApp.swift */,
-				A54CF7E82B4AC16A008A0FFF /* ContentView.swift */,
+				A54CF7E62B4AC16A008A0FFF /* CrepeApp.swift */,
 				A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */,
 				A54CF7EA2B4AC16C008A0FFF /* Assets.xcassets */,
 				A54CF7EC2B4AC16C008A0FFF /* Preview Content */,
@@ -68,6 +72,13 @@
 				A54CF7ED2B4AC16C008A0FFF /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		A5B5DCC42B4D5ABA0031FE18 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -86,6 +97,11 @@
 			dependencies = (
 			);
 			name = App;
+			packageProductDependencies = (
+				A5B5DCC52B4D5ABA0031FE18 /* AppFeature */,
+				A5B5DCC72B4D5AC00031FE18 /* AuthClientLive */,
+				A5B5DCC92B4D5AC60031FE18 /* FirestoreClientLive */,
+			);
 			productName = App;
 			productReference = A54CF7E32B4AC16A008A0FFF /* App.app */;
 			productType = "com.apple.product-type.application";
@@ -141,8 +157,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A54CF7E92B4AC16A008A0FFF /* ContentView.swift in Sources */,
-				A54CF7E72B4AC16A008A0FFF /* AppApp.swift in Sources */,
+				A54CF7E72B4AC16A008A0FFF /* CrepeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +361,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A5B5DCC52B4D5ABA0031FE18 /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
+		A5B5DCC72B4D5AC00031FE18 /* AuthClientLive */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AuthClientLive;
+		};
+		A5B5DCC92B4D5AC60031FE18 /* FirestoreClientLive */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirestoreClientLive;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A54CF7DB2B4AC16A008A0FFF /* Project object */;
 }

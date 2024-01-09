@@ -11,6 +11,8 @@ public struct GalleryView: View {
     public var body: some View {
         Text("Gallery")
     }
+
+    public init() {}
 }
 
 #if DEBUG

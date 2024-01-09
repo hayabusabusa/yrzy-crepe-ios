@@ -6,8 +6,9 @@
 //
 
 import AuthClient
-import FirestoreClient
 import ComposableArchitecture
+import FirestoreClient
+import NukeUI
 import SharedModels
 import SwiftUI
 
@@ -123,7 +124,19 @@ public struct GalleryView: View {
                 } else {
                     List {
                         ForEach(viewStore.books) { book in
-                            Text(book.title)
+                            HStack {
+                                LazyImage(url: book.thumbnailURL.flatMap { URL(string: $0) }) { state in
+                                    if let image = state.image {
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 44, height: 44)
+                                    } else {
+                                        Color(.secondarySystemBackground)
+                                    }
+                                }
+                                Text(book.title)
+                            }
                         }
                     }
                 }
@@ -157,7 +170,7 @@ public struct GalleryView: View {
                           imageURLs: [],
                           categories: [],
                           author: nil,
-                          thumbnailURL: nil)
+                          thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4")
                 ]
             }
         }

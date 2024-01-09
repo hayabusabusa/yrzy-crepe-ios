@@ -31,6 +31,9 @@ let package = Package(
             url: "https://github.com/firebase/firebase-ios-sdk.git",
             from: "10.19.0"),
         .package(
+            url: "https://github.com/kean/Nuke.git",
+            from: "12.3.0"),
+        .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             from: "1.6.0"),
         .package(
@@ -75,6 +78,7 @@ let package = Package(
                 "AuthClient",
                 "FirestoreClient",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
             ]),
         .target(
             name: "SharedModels"),

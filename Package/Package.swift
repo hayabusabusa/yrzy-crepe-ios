@@ -8,9 +8,6 @@ let package = Package(
     platforms: [.iOS(.v16)],
     products: [
         .library(
-            name: "Package",
-            targets: ["Package"]),
-        .library(
             name: "FirestoreClient",
             targets: ["FirestoreClient"]),
         .library(
@@ -44,10 +41,8 @@ let package = Package(
             ]),
         .target(
             name: "SharedModels"),
-        .target(
-            name: "Package"),
         .testTarget(
             name: "PackageTests",
-            dependencies: ["Package"]),
+            dependencies: []),
     ]
 )

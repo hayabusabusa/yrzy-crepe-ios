@@ -41,7 +41,6 @@ let package = Package(
                 "FirestoreClient",
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
-                .product(name: "Dependencies", package: "swift-dependencies"),
             ]),
         .target(
             name: "SharedModels"),

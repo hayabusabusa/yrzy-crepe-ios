@@ -122,21 +122,33 @@ public struct GalleryView: View {
                 if viewStore.isLoading {
                     ProgressView()
                 } else {
-                    List {
-                        ForEach(viewStore.books) { book in
-                            HStack {
-                                LazyImage(url: book.thumbnailURL.flatMap { URL(string: $0) }) { state in
-                                    if let image = state.image {
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 44, height: 44)
-                                    } else {
-                                        Color(.secondarySystemBackground)
-                                    }
+                    ScrollView {
+                        LazyVStack {
+                            GalleryHeaderView(
+                                pageViewConfigurations: viewStore.books.prefix(3).map {
+                                    .init(
+                                        id: $0.id, 
+                                        title: $0.title,
+                                        imageURL: $0.thumbnailURL
+                                    )
                                 }
-                                Text(book.title)
-                            }
+                            )
+
+                            GallerySectionTitleView(
+                                title: "最近追加された作品",
+                                buttonTitle: "もっとみる",
+                                action: {}
+                            )
+
+                            GallerySectionView(
+                                configurations: viewStore.books.map {
+                                    .init(
+                                        id: $0.id,
+                                        title: $0.title,
+                                        imageURL: $0.thumbnailURL
+                                    )
+                                }
+                            )
                         }
                     }
                 }
@@ -158,19 +170,19 @@ public struct GalleryView: View {
         store: Store(initialState: GalleryFeature.State()) {
             GalleryFeature()
         } withDependencies: {
-            $0.authClient.isSignIn = {
-                true
-            }
+            $0.authClient.isSignIn = { true }
             $0.firestoreClient.fetchLatestBooks = { _ in
                 [
-                    .init(id: UUID().uuidString,
-                          title: "TEST",
-                          url: "",
-                          createdAt: Date(),
-                          imageURLs: [],
-                          categories: [],
-                          author: nil,
-                          thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4")
+                    .init(
+                        id: UUID().uuidString,
+                        title: "TEST",
+                        url: "",
+                        createdAt: Date(),
+                        imageURLs: [],
+                        categories: [],
+                        author: nil,
+                        thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
+                    )
                 ]
             }
         }

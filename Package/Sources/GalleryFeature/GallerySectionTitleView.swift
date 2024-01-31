@@ -15,12 +15,15 @@ struct GallerySectionTitleView: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .bold()
+                .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            Button(buttonTitle) {
+            Button(action: {
                 action()
-            }
+            }, label: {
+                Text(buttonTitle)
+                    .font(.caption)
+            })
         }
         .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
     }

@@ -28,6 +28,7 @@ extension FirestoreClient: DependencyKey {
                 .getDocument()
             var decoded = try decoder.decode(Book.self, from: snapshot.data() ?? [:])
             decoded.id = snapshot.documentID
+            
             return decoded
         } fetchLatestBooks: { request in
             let collectionPath = Path.books.collection
@@ -36,6 +37,23 @@ extension FirestoreClient: DependencyKey {
                 .start(after: [request.afterDate])
                 .limit(to: request.limit)
                 .getDocuments()
+
+            return try snapshot.documents
+                .map { document in
+                    var decoded = try decoder.decode(Book.self, from: document.data())
+                    decoded.id = document.documentID
+                    return decoded
+                }
+        } fetchCertainDateBooks: { request in
+            let collectionPath = Path.books.collection
+            let date = request.date.startAndEnd
+            let snapshot = try await db.collection(collectionPath)
+                .order(by: "createdAt", descending: request.isDescending)
+                .start(at: [date.start])
+                .end(at: [date.end])
+                .limit(to: request.limit)
+                .getDocuments()
+
             return try snapshot.documents
                 .map { document in
                     var decoded = try decoder.decode(Book.self, from: document.data())
@@ -47,6 +65,7 @@ extension FirestoreClient: DependencyKey {
             let snapshot = try await db.collection(collectionPath)
                 .document(documentID)
                 .getDocument()
+
             return snapshot.exists
         } fetchLatestFavoriteBooks: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
@@ -55,6 +74,7 @@ extension FirestoreClient: DependencyKey {
                 .start(after: [request.afterDate])
                 .limit(to: request.limit)
                 .getDocuments()
+
             return try snapshot.documents
                 .map { document in
                     var decoded = try decoder.decode(FavoriteBook.self, from: document.data())
@@ -66,6 +86,7 @@ extension FirestoreClient: DependencyKey {
             let snapshot = try await db.collection(collectionPath)
                 .order(by: "createdAt", descending: true)
                 .getDocuments()
+
             return try snapshot.documents
                 .map { try decoder.decode(Advertisement.self, from: $0.data()) }
         } removeFavoriteBook: { request in
@@ -85,5 +106,15 @@ private struct Path {
 
     static func favorites(for userID: String) -> Self {
         .init(collection: "public/v1/users/\(userID)/favorites")
+    }
+}
+
+private extension Date {
+    /// その日の始まり( 0 時 0 分 )と終わり( 23 時 59 分 )を返す.
+    var startAndEnd: (start: Date, end: Date) {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: self)
+        let end = calendar.date(byAdding: DateComponents(day: 1, second: -1), to: self) ?? self
+        return (start: start, end: end)
     }
 }

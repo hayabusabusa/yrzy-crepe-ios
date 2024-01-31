@@ -15,6 +15,8 @@ public struct FirestoreClient {
     public var fetchBook: @Sendable (String) async throws -> Book
     /// Firestore の `/books` から日付を降順に並べたデータ一覧を取得する.
     public var fetchLatestBooks: @Sendable (LatestBooksRequest) async throws -> [Book]
+    /// Firestore の `/books` から任意の日付 1 日分のデータ一覧を取得する.
+    public var fetchCertainDateBooks: @Sendable (CertainDateBooksRequest) async throws -> [Book]
     /// Firestore の `/books/{id}` にデータが存在するかどうかを返す.
     public var bookExists: @Sendable (String) async throws -> Bool
     /// Firestore の `/users/{userID}/favorites` から日付を降順に並べたデータ一覧を取得する.
@@ -26,12 +28,14 @@ public struct FirestoreClient {
 
     public init(fetchBook: @Sendable @escaping (String) async throws -> Book,
                 fetchLatestBooks: @Sendable @escaping (LatestBooksRequest) async throws -> [Book],
+                fetchCertainDateBooks: @Sendable @escaping (CertainDateBooksRequest) async throws -> [Book],
                 bookExists: @Sendable @escaping (String) async throws -> Bool,
                 fetchLatestFavoriteBooks: @Sendable @escaping (LatestFavoriteBookRequest) async throws -> [FavoriteBook],
                 fetchAdvertisements: @Sendable @escaping () async throws -> [Advertisement],
                 removeFavoriteBook: @Sendable @escaping (RemoveFavoriteBookRequest) async throws -> Void) {
         self.fetchBook = fetchBook
         self.fetchLatestBooks = fetchLatestBooks
+        self.fetchCertainDateBooks = fetchCertainDateBooks
         self.bookExists = bookExists
         self.fetchLatestFavoriteBooks = fetchLatestFavoriteBooks
         self.fetchAdvertisements = fetchAdvertisements
@@ -65,7 +69,26 @@ public extension FirestoreClient {
             self.limit = limit
         }
     }
-    
+
+    struct CertainDateBooksRequest {
+        /// 取得する日付.
+        public let date: Date
+        /// 降順にするかどうか.
+        public let isDescending: Bool
+        /// 一度に取得する件数.
+        public let limit: Int
+
+        public init(
+            date: Date,
+            isDescending: Bool,
+            limit: Int
+        ) {
+            self.date = date
+            self.isDescending = isDescending
+            self.limit = limit
+        }
+    }
+
     /// お気に入りに登録した作品一覧を日付順に取得するためのリクエスト.
     struct LatestFavoriteBookRequest {
         /// ユーザー ID.
@@ -124,6 +147,8 @@ extension FirestoreClient: TestDependencyKey {
                  thumbnailURL: nil)
         } fetchLatestBooks: { _ in
             []
+        } fetchCertainDateBooks: { _ in
+            []
         } bookExists: { _ in
             false
         } fetchLatestFavoriteBooks: { _ in
@@ -137,6 +162,8 @@ extension FirestoreClient: TestDependencyKey {
         .init { _ in
             unimplemented("\(Self.self)\(#function)")
         } fetchLatestBooks: { _ in
+            unimplemented("\(Self.self)\(#function)")
+        } fetchCertainDateBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
         } bookExists: { _ in
             unimplemented("\(Self.self)\(#function)")

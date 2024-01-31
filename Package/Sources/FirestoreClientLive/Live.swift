@@ -19,6 +19,7 @@ extension FirestoreClient: DependencyKey {
 
     private static func live() -> Self {
         let db = Firestore.firestore()
+        let encoder = Firestore.Encoder()
         let decoder = Firestore.Decoder()
 
         return .init { documentID in
@@ -28,7 +29,7 @@ extension FirestoreClient: DependencyKey {
                 .getDocument()
             var decoded = try decoder.decode(Book.self, from: snapshot.data() ?? [:])
             decoded.id = snapshot.documentID
-            
+
             return decoded
         } fetchLatestBooks: { request in
             let collectionPath = Path.books.collection
@@ -89,6 +90,12 @@ extension FirestoreClient: DependencyKey {
 
             return try snapshot.documents
                 .map { try decoder.decode(Advertisement.self, from: $0.data()) }
+        } addUser: { user in
+            let collectionPath = Path.users.collection
+            let encoded = try encoder.encode(user)
+
+            try await db.collection(collectionPath)
+                .addDocument(data: encoded)
         } removeFavoriteBook: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
             try await db.collection(collectionPath)
@@ -102,6 +109,7 @@ private struct Path {
     let collection: String
 
     static let books = Self.init(collection: "public/v1/books")
+    static let users = Self.init(collection: "public/v1/users")
     static let advertisements = Self.init(collection: "public/v1/advertisements")
 
     static func favorites(for userID: String) -> Self {

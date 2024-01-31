@@ -23,6 +23,8 @@ public struct FirestoreClient {
     public var fetchLatestFavoriteBooks: @Sendable (LatestFavoriteBookRequest) async throws -> [FavoriteBook]
     /// Firestore の `/advertisements` からデータ一覧を取得する.
     public var fetchAdvertisements: @Sendable () async throws -> [Advertisement]
+    /// Firestore の `/users/{userID}` にデータを追加する.
+    public var addUser: @Sendable (User) async throws -> Void
     /// Firestore の `/users/{userID}/favorites/{documentID}` からデータを削除する.
     public var removeFavoriteBook: @Sendable (RemoveFavoriteBookRequest) async throws -> Void
 
@@ -32,6 +34,7 @@ public struct FirestoreClient {
                 bookExists: @Sendable @escaping (String) async throws -> Bool,
                 fetchLatestFavoriteBooks: @Sendable @escaping (LatestFavoriteBookRequest) async throws -> [FavoriteBook],
                 fetchAdvertisements: @Sendable @escaping () async throws -> [Advertisement],
+                addUser: @Sendable @escaping (User) async throws -> Void,
                 removeFavoriteBook: @Sendable @escaping (RemoveFavoriteBookRequest) async throws -> Void) {
         self.fetchBook = fetchBook
         self.fetchLatestBooks = fetchLatestBooks
@@ -39,6 +42,7 @@ public struct FirestoreClient {
         self.bookExists = bookExists
         self.fetchLatestFavoriteBooks = fetchLatestFavoriteBooks
         self.fetchAdvertisements = fetchAdvertisements
+        self.addUser = addUser
         self.removeFavoriteBook = removeFavoriteBook
     }
 }
@@ -69,7 +73,8 @@ public extension FirestoreClient {
             self.limit = limit
         }
     }
-
+    
+    /// 任意の日付 1 日文のデータを日付順に取得するためのリクエスト.
     struct CertainDateBooksRequest {
         /// 取得する日付.
         public let date: Date
@@ -155,6 +160,8 @@ extension FirestoreClient: TestDependencyKey {
             []
         } fetchAdvertisements: {
             []
+        } addUser: { _ in
+
         } removeFavoriteBook: { _ in }
     }
 
@@ -170,6 +177,8 @@ extension FirestoreClient: TestDependencyKey {
         } fetchLatestFavoriteBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
         } fetchAdvertisements: {
+            unimplemented("\(Self.self)\(#function)")
+        } addUser: { _ in
             unimplemented("\(Self.self)\(#function)")
         } removeFavoriteBook: { _ in
             unimplemented("\(Self.self)\(#function)")

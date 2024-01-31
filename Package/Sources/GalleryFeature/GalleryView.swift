@@ -51,8 +51,8 @@ public struct GalleryFeature {
                     // サインインしていない場合は匿名認証して新しくユーザーのデータを保存する
                     let isSignIn = self.authClient.isSignIn()
                     if !isSignIn {
-                        // TODO: ユーザーのデータを Firestore に保存する
-                        let _ = try await self.authClient.signInAsAnonymousUser()
+                        let user = try await self.authClient.signInAsAnonymousUser()
+                        try await self.firestoreClient.addUser(user)
                     }
 
                     await send(

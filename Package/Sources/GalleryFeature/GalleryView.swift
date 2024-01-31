@@ -23,13 +23,7 @@ public struct GalleryFeature {
 
     public enum Action {
         /// 画面に必要な情報が全て返ってきた時の `Action`.
-        case allResponse(Result<[Book], Error>)
-        /// 認証済みかどうか確認する `Action`.
-        case auth(Bool)
-        /// 匿名認証を行う `Action`.
-        case signIn
-        /// 匿名認証の結果が返ってきた時の `Action`.
-        case signInResponse(Result<User, Error>)
+        case response(Result<[Book], Error>)
         /// 非同期処理を実行するための `Action`.
         case task
     }
@@ -41,50 +35,28 @@ public struct GalleryFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .allResponse(.success(books)):
+            case let .response(.success(books)):
                 state.books = IdentifiedArray(uniqueElements: books)
                 state.isLoading = false
 
                 return .none
-            case .allResponse(.failure):
+            case .response(.failure):
                 state.isLoading = false
 
                 return .none
-            case let .auth(isSignIn):
-                if isSignIn {
-                    return .run { send in
-                        await send(
-                            .allResponse(
-                                Result {
-                                    try await self.firestoreClient.fetchLatestBooks(
-                                        FirestoreClient.LatestBooksRequest(
-                                            orderBy: "createdAt",
-                                            isDescending: true,
-                                            afterDate: dateGenerator.now,
-                                            limit: 10
-                                        )
-                                    )
-                                }
-                            )
-                        )
+            case .task:
+                state.isLoading = true
+
+                return .run { send in
+                    // サインインしていない場合は匿名認証して新しくユーザーのデータを保存する
+                    let isSignIn = self.authClient.isSignIn()
+                    if !isSignIn {
+                        // TODO: ユーザーのデータを Firestore に保存する
+                        let _ = try await self.authClient.signInAsAnonymousUser()
                     }
-                } else {
-                    return .send(.signIn)
-                }
-            case .signIn:
-                return .run { send in
+
                     await send(
-                        .signInResponse(
-                            Result {
-                                try await self.authClient.signInAsAnonymousUser()
-                            }
-                        )
-                    )
-                }
-            case .signInResponse(.success):
-                return .run { send in
-                    await send(
-                        .allResponse(
+                        .response(
                             Result {
                                 try await self.firestoreClient.fetchLatestBooks(
                                     FirestoreClient.LatestBooksRequest(
@@ -98,14 +70,6 @@ public struct GalleryFeature {
                         )
                     )
                 }
-            case let .signInResponse(.failure(error)):
-                print(error)
-
-                return .none
-            case .task:
-                state.isLoading = true
-
-                return .send(.auth(authClient.isSignIn()))
             }
         }
     }

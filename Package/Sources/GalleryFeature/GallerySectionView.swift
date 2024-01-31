@@ -15,11 +15,14 @@ struct GallerySectionView: View {
     ]
 
     var configurations: [ItemView.Configuration]
+    var action: ((Int) -> Void)?
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 8) {
-            ForEach(configurations) { configuration in
-                ItemView(configuration: configuration)
+            ForEach(Array(configurations.enumerated()), id: \.offset) { index, configuration in
+                ItemView(configuration: configuration) {
+                    action?(index)
+                }
             }
         }
         .padding([.trailing, .leading], 8)
@@ -29,10 +32,11 @@ struct GallerySectionView: View {
 extension GallerySectionView {
     struct ItemView: View {
         var configuration: Configuration
+        var action: (() -> Void)?
 
         var body: some View {
             Button(action: {
-
+                action?()
             }, label: {
                 VStack {
                     LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in

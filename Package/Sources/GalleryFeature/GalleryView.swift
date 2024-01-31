@@ -111,6 +111,9 @@ public struct GalleryView: View {
                                         title: $0.title,
                                         imageURL: $0.thumbnailURL
                                     )
+                                },
+                                action: { index in
+                                    print(index)
                                 }
                             )
                         }

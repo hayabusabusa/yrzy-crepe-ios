@@ -6,13 +6,16 @@
 //
 
 import AppFeature
+import ComposableArchitecture
 import SwiftUI
 
 @main
 struct CrepeApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
-            AppView()
+            AppView(store: appDelegate.store)
         }
     }
 }

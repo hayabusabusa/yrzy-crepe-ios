@@ -128,6 +128,7 @@ public struct GalleryView: View {
                             )
                         }
                     }
+                    .padding(.top)
                 }
             }
             .task {

@@ -52,6 +52,7 @@ extension GallerySectionView {
                     .clipped()
 
                     Text(configuration.title)
+                        .font(.callout)
                         .bold()
                         .lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,7 +80,7 @@ extension GallerySectionView.ItemView {
         configurations: [
             .init(
                 id: UUID().uuidString,
-                title: "TEST1", 
+                title: "TEST1",
                 imageURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
             ),
             .init(

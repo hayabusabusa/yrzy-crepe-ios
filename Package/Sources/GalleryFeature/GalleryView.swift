@@ -19,6 +19,14 @@ public struct GalleryFeature {
     public struct State: Equatable {
         public var books = IdentifiedArrayOf<Book>()
         public var isLoading = false
+
+        public init(
+            books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
+            isLoading: Bool = false
+        ) {
+            self.books = books
+            self.isLoading = isLoading
+        }
     }
 
     public enum Action {
@@ -73,6 +81,8 @@ public struct GalleryFeature {
             }
         }
     }
+
+    public init() {}
 }
 
 // MARK: - View

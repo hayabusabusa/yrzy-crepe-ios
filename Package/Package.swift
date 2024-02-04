@@ -17,6 +17,12 @@ let package = Package(
             name: "AuthClientLive",
             targets: ["AuthClientLive"]),
         .library(
+            name: "FirebaseClient",
+            targets: ["FirebaseClient"]),
+        .library(
+            name: "FirebaseClientLive",
+            targets: ["FirebaseClientLive"]),
+        .library(
             name: "FirestoreClient",
             targets: ["FirestoreClient"]),
         .library(
@@ -44,6 +50,7 @@ let package = Package(
         .target(
             name: "AppFeature",
             dependencies: [
+                "FirebaseClient",
                 "GalleryFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]),
@@ -58,6 +65,18 @@ let package = Package(
             dependencies: [
                 "AuthClient",
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+            ]),
+        .target(
+            name: "FirebaseClient",
+            dependencies: [
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "FirebaseClientLive",
+            dependencies: [
+                "FirebaseClient",
+                .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
             ]),
         .target(
             name: "FirestoreClient",

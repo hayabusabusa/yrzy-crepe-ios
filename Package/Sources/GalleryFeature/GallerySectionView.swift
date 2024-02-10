@@ -55,8 +55,11 @@ extension GallerySectionView {
                         .font(.callout)
                         .bold()
                         .lineLimit(2)
+                        .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
+
+                    Spacer()
                 }
             })
             .foregroundStyle(
@@ -80,12 +83,12 @@ extension GallerySectionView.ItemView {
         configurations: [
             .init(
                 id: UUID().uuidString,
-                title: "TEST1",
+                title: "奥さんは最初世の中を見る彼の口にした。",
                 imageURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
             ),
             .init(
                 id: UUID().uuidString,
-                title: "TEST2",
+                title: "言葉を継ぎ足した。",
                 imageURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
             )
         ]

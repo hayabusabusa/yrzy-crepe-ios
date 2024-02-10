@@ -9,6 +9,7 @@ import AuthClient
 import ComposableArchitecture
 import FirestoreClient
 import NukeUI
+import SharedExtensions
 import SharedModels
 import SwiftUI
 
@@ -109,10 +110,9 @@ private extension GalleryFeature {
                 limit: 6
             )
         )
-        let lastYear = now.addingTimeInterval(-(365 * 24 * 60 * 60))
         async let fetchLastYearBooksTask = firestoreClient.fetchCertainDateBooks(
             FirestoreClient.CertainDateBooksRequest(
-                date: lastYear,
+                date: now.lastYear,
                 isDescending: true,
                 limit: 6
             )

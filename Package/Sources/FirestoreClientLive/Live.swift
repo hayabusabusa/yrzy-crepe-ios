@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Foundation
 import Dependencies
+import SharedExtensions
 import SharedModels
 
 extension FirestoreClient: DependencyKey {
@@ -114,15 +115,5 @@ private struct Path {
 
     static func favorites(for userID: String) -> Self {
         .init(collection: "public/v1/users/\(userID)/favorites")
-    }
-}
-
-private extension Date {
-    /// その日の始まり( 0 時 0 分 )と終わり( 23 時 59 分 )を返す.
-    var startAndEnd: (start: Date, end: Date) {
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: self)
-        let end = calendar.date(byAdding: DateComponents(day: 1, second: -1), to: self) ?? self
-        return (start: start, end: end)
     }
 }

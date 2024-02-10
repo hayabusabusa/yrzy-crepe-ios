@@ -67,6 +67,7 @@ let package = Package(
             name: "AuthClientLive",
             dependencies: [
                 "AuthClient",
+                "SharedModels",
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ]),
         .target(
@@ -91,6 +92,8 @@ let package = Package(
             name: "FirestoreClientLive",
             dependencies: [
                 "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
             ]),
@@ -99,6 +102,8 @@ let package = Package(
             dependencies: [
                 "AuthClient",
                 "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
             ]),

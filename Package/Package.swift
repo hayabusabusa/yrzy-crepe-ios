@@ -34,6 +34,9 @@ let package = Package(
         .library(
             name: "SharedExtensions",
             targets: ["SharedExtensions"]),
+        .library(
+            name: "ViewerFeature",
+            targets: ["ViewerFeature"]),
     ],
     dependencies: [
         .package(
@@ -111,6 +114,14 @@ let package = Package(
             name: "SharedModels"),
         .target(
             name: "SharedExtensions"),
+        .target(
+            name: "ViewerFeature",
+            dependencies: [
+                "FirestoreClient",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
         .testTarget(
             name: "PackageTests",
             dependencies: []),

@@ -17,23 +17,39 @@ import SwiftUI
 @Reducer
 public struct GalleryFeature {
     public struct State: Equatable {
-        public var books = IdentifiedArrayOf<Book>()
+        public var latestBooks = IdentifiedArrayOf<Book>()
+        public var lastYearBooks = IdentifiedArrayOf<Book>()
         public var isLoading = false
 
         public init(
-            books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
+            latestBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
+            lastYearBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             isLoading: Bool = false
         ) {
-            self.books = books
+            self.latestBooks = latestBooks
+            self.lastYearBooks = lastYearBooks
             self.isLoading = isLoading
         }
     }
 
     public enum Action {
         /// 画面に必要な情報が全て返ってきた時の `Action`.
-        case response(Result<[Book], Error>)
+        case response(Result<Response, Error>)
         /// 非同期処理を実行するための `Action`.
         case task
+    }
+
+    public struct Response {
+        let latestBooks: [Book]
+        let lastYearBooks: [Book]
+
+        public init(
+            latestBooks: [Book],
+            lastYearBooks: [Book]
+        ) {
+            self.latestBooks = latestBooks
+            self.lastYearBooks = lastYearBooks
+        }
     }
 
     @Dependency(\.authClient) var authClient
@@ -43,8 +59,9 @@ public struct GalleryFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .response(.success(books)):
-                state.books = IdentifiedArray(uniqueElements: books)
+            case let .response(.success(response)):
+                state.latestBooks = IdentifiedArray(uniqueElements: response.latestBooks)
+                state.lastYearBooks = IdentifiedArray(uniqueElements: response.lastYearBooks)
                 state.isLoading = false
 
                 return .none
@@ -66,14 +83,7 @@ public struct GalleryFeature {
                     await send(
                         .response(
                             Result {
-                                try await self.firestoreClient.fetchLatestBooks(
-                                    FirestoreClient.LatestBooksRequest(
-                                        orderBy: "createdAt",
-                                        isDescending: true,
-                                        afterDate: dateGenerator.now,
-                                        limit: 10
-                                    )
-                                )
+                                try await self.fetchGalleryBooks()
                             }
                         )
                     )
@@ -83,6 +93,37 @@ public struct GalleryFeature {
     }
 
     public init() {}
+}
+
+// MARK: Reducer Private
+
+private extension GalleryFeature {
+    /// ギャラリー画面の表示に必要なデータをすべて取得する.
+    func fetchGalleryBooks() async throws -> Response {
+        let now = dateGenerator.now
+        async let fetchLatestBooksTask = firestoreClient.fetchLatestBooks(
+            FirestoreClient.LatestBooksRequest(
+                orderBy: "createdAt",
+                isDescending: true,
+                afterDate: now,
+                limit: 6
+            )
+        )
+        let lastYear = now.addingTimeInterval(-(365 * 24 * 60 * 60))
+        async let fetchLastYearBooksTask = firestoreClient.fetchCertainDateBooks(
+            FirestoreClient.CertainDateBooksRequest(
+                date: lastYear,
+                isDescending: true,
+                limit: 6
+            )
+        )
+
+        let results = try await (fetchLatestBooksTask, fetchLastYearBooksTask)
+        return Response(
+            latestBooks: results.0,
+            lastYearBooks: results.1
+        )
+    }
 }
 
 // MARK: - View
@@ -99,7 +140,7 @@ public struct GalleryView: View {
                     ScrollView {
                         LazyVStack {
                             GalleryHeaderView(
-                                pageViewConfigurations: viewStore.books.prefix(3).map {
+                                pageViewConfigurations: viewStore.latestBooks.prefix(3).map {
                                     .init(
                                         id: $0.id, 
                                         title: $0.title,
@@ -115,7 +156,7 @@ public struct GalleryView: View {
                             )
 
                             GallerySectionView(
-                                configurations: viewStore.books.map {
+                                configurations: viewStore.latestBooks.map {
                                     .init(
                                         id: $0.id,
                                         title: $0.title,
@@ -126,6 +167,28 @@ public struct GalleryView: View {
                                     print(index)
                                 }
                             )
+
+                            let lastYearBooks = viewStore.lastYearBooks
+                            if !lastYearBooks.isEmpty {
+                                GallerySectionTitleView(
+                                    title: "あの日追加された作品",
+                                    buttonTitle: "もっとみる",
+                                    action: {}
+                                )
+
+                                GallerySectionView(
+                                    configurations: lastYearBooks.map {
+                                        .init(
+                                            id: $0.id,
+                                            title: $0.title,
+                                            imageURL: $0.thumbnailURL
+                                        )
+                                    },
+                                    action: { index in
+                                        print(index)
+                                    }
+                                )
+                            }
                         }
                     }
                     .padding(.top)
@@ -143,26 +206,28 @@ public struct GalleryView: View {
 }
 
 #if DEBUG
+let booksStub = Array(repeating: 0, count: 6)
+    .map { _ in
+        Book(
+            id: UUID().uuidString,
+            title: "TEST",
+            url: "",
+            createdAt: Date(),
+            imageURLs: [],
+            categories: [],
+            author: nil,
+            thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
+        )
+    }
+
 #Preview {
     GalleryView(
         store: Store(initialState: GalleryFeature.State()) {
             GalleryFeature()
         } withDependencies: {
             $0.authClient.isSignIn = { true }
-            $0.firestoreClient.fetchLatestBooks = { _ in
-                [
-                    .init(
-                        id: UUID().uuidString,
-                        title: "TEST",
-                        url: "",
-                        createdAt: Date(),
-                        imageURLs: [],
-                        categories: [],
-                        author: nil,
-                        thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
-                    )
-                ]
-            }
+            $0.firestoreClient.fetchLatestBooks = { _ in booksStub }
+            $0.firestoreClient.fetchCertainDateBooks = { _ in booksStub }
         }
     )
 }

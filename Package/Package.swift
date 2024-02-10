@@ -123,9 +123,6 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke"),
             ]),
         .testTarget(
-            name: "PackageTests",
-            dependencies: []),
-        .testTarget(
             name: "SharedExtensionsTests",
             dependencies: [
                 "SharedExtensions",

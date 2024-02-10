@@ -109,5 +109,11 @@ let package = Package(
         .testTarget(
             name: "PackageTests",
             dependencies: []),
+        .testTarget(
+            name: "SharedExtensionsTests",
+            dependencies: [
+                "SharedExtensions",
+            ]
+        ),
     ]
 )

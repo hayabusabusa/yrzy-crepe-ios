@@ -12,7 +12,7 @@ public extension Date {
     var startAndEnd: (start: Date, end: Date) {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: self)
-        let end = calendar.date(byAdding: DateComponents(day: 1, second: -1), to: self) ?? self
+        let end = calendar.date(byAdding: DateComponents(day: 1, second: -1), to: start) ?? self
         return (start: start, end: end)
     }
 

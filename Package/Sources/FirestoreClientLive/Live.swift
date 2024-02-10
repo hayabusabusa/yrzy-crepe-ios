@@ -50,9 +50,9 @@ extension FirestoreClient: DependencyKey {
             let collectionPath = Path.books.collection
             let date = request.date.startAndEnd
             let snapshot = try await db.collection(collectionPath)
+                .whereField("createdAt", isGreaterThanOrEqualTo: date.start)
+                .whereField("createdAt", isLessThanOrEqualTo: date.end)
                 .order(by: "createdAt", descending: request.isDescending)
-                .start(at: [date.start])
-                .end(at: [date.end])
                 .limit(to: request.limit)
                 .getDocuments()
 

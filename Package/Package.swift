@@ -31,6 +31,9 @@ let package = Package(
         .library(
             name: "GalleryFeature",
             targets: ["GalleryFeature"]),
+        .library(
+            name: "SharedExtensions",
+            targets: ["SharedExtensions"]),
     ],
     dependencies: [
         .package(
@@ -101,6 +104,8 @@ let package = Package(
             ]),
         .target(
             name: "SharedModels"),
+        .target(
+            name: "SharedExtensions"),
         .testTarget(
             name: "PackageTests",
             dependencies: []),

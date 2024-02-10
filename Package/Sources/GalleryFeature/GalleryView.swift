@@ -171,7 +171,7 @@ public struct GalleryView: View {
                             let lastYearBooks = viewStore.lastYearBooks
                             if !lastYearBooks.isEmpty {
                                 GallerySectionTitleView(
-                                    title: "あの日追加された作品",
+                                    title: "1年前に追加された作品",
                                     buttonTitle: "もっとみる",
                                     action: {}
                                 )

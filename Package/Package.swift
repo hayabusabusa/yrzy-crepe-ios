@@ -51,6 +51,9 @@ let package = Package(
         .package(
             url: "https://github.com/pointfreeco/swift-dependencies",
             from: "1.1.5"),
+        .package(
+            url: "https://github.com/fermoya/SwiftUIPager.git",
+            from: "2.5.0"),
     ],
     targets: [
         .target(
@@ -121,6 +124,7 @@ let package = Package(
                 "SharedModels",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
+                .product(name: "SwiftUIPager", package: "SwiftUIPager"),
             ]),
         .testTarget(
             name: "SharedExtensionsTests",

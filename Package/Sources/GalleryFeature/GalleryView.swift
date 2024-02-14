@@ -12,6 +12,7 @@ import NukeUI
 import SharedExtensions
 import SharedModels
 import SwiftUI
+import ViewerFeature
 
 // MARK: - Reducer
 
@@ -21,19 +22,26 @@ public struct GalleryFeature {
         public var latestBooks = IdentifiedArrayOf<Book>()
         public var lastYearBooks = IdentifiedArrayOf<Book>()
         public var isLoading = false
+        @PresentationState public var viewer: ViewerFeature.State?
 
         public init(
             latestBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             lastYearBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
-            isLoading: Bool = false
+            isLoading: Bool = false,
+            viewer: ViewerFeature.State? = nil
         ) {
             self.latestBooks = latestBooks
             self.lastYearBooks = lastYearBooks
             self.isLoading = isLoading
+            self.viewer = viewer
         }
     }
 
     public enum Action {
+        /// 最近追加された作品一覧のアイテムがタップされた時の `Action`.
+        case latestBookTapped(Int)
+        /// ビューワー画面に遷移する `Aciton`.
+        case viewer(PresentationAction<ViewerFeature.Action>)
         /// 画面に必要な情報が全て返ってきた時の `Action`.
         case response(Result<Response, Error>)
         /// 非同期処理を実行するための `Action`.
@@ -60,6 +68,15 @@ public struct GalleryFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .latestBookTapped(index):
+                state.viewer = ViewerFeature.State(
+                    book: state.latestBooks[index]
+                )
+
+                return .none
+            case .viewer:
+
+                return .none
             case let .response(.success(response)):
                 state.latestBooks = IdentifiedArray(uniqueElements: response.latestBooks)
                 state.lastYearBooks = IdentifiedArray(uniqueElements: response.lastYearBooks)
@@ -90,6 +107,9 @@ public struct GalleryFeature {
                     )
                 }
             }
+        }
+        .ifLet(\.$viewer, action: \.viewer) {
+            ViewerFeature()
         }
     }
 
@@ -164,7 +184,7 @@ public struct GalleryView: View {
                                     )
                                 },
                                 action: { index in
-                                    print(index)
+                                    viewStore.send(.latestBookTapped(index))
                                 }
                             )
 
@@ -196,6 +216,16 @@ public struct GalleryView: View {
             }
             .task {
                 store.send(.task)
+            }
+            .sheet(
+                store: store.scope(
+                    state: \.$viewer,
+                    action: { .viewer($0) }
+                )
+            ) { store in
+                NavigationStack {
+                    ViewerView(store: store)
+                }
             }
         }
     }

@@ -110,6 +110,7 @@ let package = Package(
                 "FirestoreClient",
                 "SharedModels",
                 "SharedExtensions",
+                "ViewerFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
             ]),

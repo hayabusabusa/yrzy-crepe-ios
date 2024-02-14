@@ -42,6 +42,8 @@ public struct GalleryFeature {
         case latestBookTapped(Int)
         /// 1年前に追加された作品一覧のアイテムがタップされた時の `Action`.
         case lastYearBookTapped(Int)
+        /// 引っ張って更新の `Action`.
+        case pullToRefresh
         /// ビューワー画面に遷移する `Aciton`.
         case viewer(PresentationAction<ViewerFeature.Action>)
         /// 画面に必要な情報が全て返ってきた時の `Action`.
@@ -82,6 +84,18 @@ public struct GalleryFeature {
                 )
 
                 return .none
+            case .pullToRefresh:
+                state.isLoading = true
+
+                return .run { send in
+                    await send(
+                        .response(
+                            Result {
+                                try await self.fetchGalleryBooks()
+                            }
+                        )
+                    )
+                }
             case .viewer:
 
                 return .none
@@ -220,6 +234,9 @@ public struct GalleryView: View {
                         }
                     }
                     .padding(.top)
+                    .refreshable {
+                        viewStore.send(.pullToRefresh)
+                    }
                 }
             }
             .task {

@@ -5,38 +5,106 @@
 //  Created by Shunya Yamada on 2024/02/10.
 //
 
+import ComposableArchitecture
 import NukeUI
+import SharedModels
 import SwiftUI
 import SwiftUIPager
+
+@Reducer
+public struct ViewerFeature {
+    public struct State: Equatable {
+        var book: Book
+        var pageIndex: Int
+        var sliderValue: Double
+
+        public init(book: Book) {
+            self.book = book
+            self.pageIndex = 0
+            self.sliderValue = Double(book.imageURLs.count - 1)
+        }
+    }
+
+    public enum Action {
+        /// 閉じるボタンタップ時の `Action`.
+        case closeButtonTapped
+        /// Pager のページが切り替わった時の `Action`.
+        case pageChanged(Int)
+        /// スライダーの値が変化した時の `Action`.
+        case sliderValueChanged(Double)
+    }
+
+    @Dependency(\.dismiss) var dismiss
+
+    public var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .closeButtonTapped:
+                return .run { _ in
+                    await self.dismiss()
+                }
+            case let .pageChanged(pageIndex):
+                state.pageIndex = pageIndex
+                state.sliderValue = Double(state.book.imageURLs.count - 1) - Double(pageIndex)
+
+                return .none
+            case let .sliderValueChanged(value):
+                state.pageIndex = (state.book.imageURLs.count - 1) - Int(value)
+                state.sliderValue = value
+
+                return .none
+            }
+        }
+    }
+
+    public init() {}
+}
 
 // MARK: - View
 
 public struct ViewerView: View {
-    var configurations: [PageView.Configuration]
-    /// 現在表示中のページの情報.
-    ///
-    /// [Usage - GitHub](https://github.com/fermoya/SwiftUIPager/blob/main/Documentation/Usage.md)
-    @StateObject private var page = Page.first()
+    let store: StoreOf<ViewerFeature>
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            Pager(
-                page: page,
-                data: configurations
-            ) { configuration in
-                PageView(configuration: configuration)
-            }
-            .horizontal(.endToStart)
-            .itemAspectRatio(1)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack(alignment: .bottom) {
+                Pager(
+                    page: Page.withIndex(viewStore.pageIndex),
+                    data: makeConfigurations(fromImageURLs: viewStore.book.imageURLs)
+                ) { configuration in
+                    PageView(configuration: configuration)
+                }
+                .onPageWillChange { pageIndex in
+                    viewStore.send(.pageChanged(pageIndex))
+                }
+                .horizontal(.endToStart)
+                .itemAspectRatio(1)
 
-            Slider(
-                value: $page.index.converted(
-                    forward: { Double($0) / Double(configurations.count - 1) },
-                    backward: { Int($0) * (configurations.count - 1) }
+                Slider(
+                    value: viewStore.binding(get: \.sliderValue, send: { .sliderValueChanged($0) }),
+                    in: 0...Double(viewStore.book.imageURLs.count - 1),
+                    step: 1
                 )
-            )
-            .padding()
+                .padding()
+            }
         }
+    }
+
+    public init(store: StoreOf<ViewerFeature>) {
+        self.store = store
+    }
+}
+
+private extension ViewerView {
+    func makeConfigurations(fromImageURLs imageURLs: [String]) -> [PageView.Configuration] {
+        imageURLs
+            .compactMap { URL(string: $0) }
+            .map {
+                PageView.Configuration(
+                    id: $0.absoluteString,
+                    imageURL: $0
+                )
+            }
     }
 }
 
@@ -65,43 +133,30 @@ extension ViewerView.PageView {
     }
 }
 
-private extension Binding {
-    /// `Binding<T>` の型を別の型に変換する.
-    ///
-    /// - Seealso: [Zenn](https://zenn.dev/en3_hcl/articles/e65c1cde876456)
-    /// - Parameters:
-    ///   - forwardConverter: 変換処理
-    ///   - backwardConverter: 変換後の値から元に戻す処理
-    /// - Returns: 変換後の型を適応した `Binding`
-    func converted<T>(
-        forward forwardConverter: @escaping (Value) -> T,
-        backward backwardConverter: @escaping (T) -> Value
-    ) -> Binding<T> {
-        .init(
-            get: {
-                return forwardConverter(self.wrappedValue)
-            },
-            set: {newValue in
-                self.wrappedValue = backwardConverter(newValue)
-            }
-        )
-    }
-}
-
 #if DEBUG
-let urls = [
-    URL(string: "https://avatars.githubusercontent.com/u/31949692?v=4")!,
-    URL(string: "https://avatars.githubusercontent.com/u/31949692?v=3")!,
-    URL(string: "https://avatars.githubusercontent.com/u/31949692?v=2")!
-]
-
 #Preview {
     ViewerView(
-        configurations: urls.map {
-            ViewerView.PageView.Configuration(
-                id: $0.absoluteString,
-                imageURL: $0
+        store: Store(
+            initialState: ViewerFeature.State(
+                book: Book(
+                    id: UUID().uuidString,
+                    title: "プレビュー",
+                    url: "https://avatars.githubusercontent.com/u/31949692?v=4",
+                    createdAt: Date(),
+                    imageURLs: [
+                        "https://avatars.githubusercontent.com/u/31949692?v=4",
+                        "https://avatars.githubusercontent.com/u/31949692?v=3",
+                        "https://avatars.githubusercontent.com/u/31949692?v=2"
+                    ],
+                    categories: [
+                        "プレビュー"
+                    ],
+                    author: nil,
+                    thumbnailURL: "https://avatars.githubusercontent.com/u/31949692?v=4"
+                )
             )
+        ) {
+            ViewerFeature()
         }
     )
 }

@@ -217,7 +217,7 @@ public struct GalleryView: View {
             .task {
                 store.send(.task)
             }
-            .sheet(
+            .fullScreenCover(
                 store: store.scope(
                     state: \.$viewer,
                     action: { .viewer($0) }

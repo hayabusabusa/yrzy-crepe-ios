@@ -11,6 +11,8 @@ import SharedModels
 import SwiftUI
 import SwiftUIPager
 
+// MARK: - Reducer
+
 @Reducer
 public struct ViewerFeature {
     public struct State: Equatable {
@@ -86,6 +88,18 @@ public struct ViewerView: View {
                     step: 1
                 )
                 .padding()
+            }
+            .navigationTitle(viewStore.book.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        viewStore.send(.closeButtonTapped)
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color(uiColor: .systemGray.withAlphaComponent(0.3)))
+                    })
+                }
             }
         }
     }

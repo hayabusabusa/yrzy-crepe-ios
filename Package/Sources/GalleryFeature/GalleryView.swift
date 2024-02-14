@@ -40,6 +40,8 @@ public struct GalleryFeature {
     public enum Action {
         /// 最近追加された作品一覧のアイテムがタップされた時の `Action`.
         case latestBookTapped(Int)
+        /// 1年前に追加された作品一覧のアイテムがタップされた時の `Action`.
+        case lastYearBookTapped(Int)
         /// ビューワー画面に遷移する `Aciton`.
         case viewer(PresentationAction<ViewerFeature.Action>)
         /// 画面に必要な情報が全て返ってきた時の `Action`.
@@ -71,6 +73,12 @@ public struct GalleryFeature {
             case let .latestBookTapped(index):
                 state.viewer = ViewerFeature.State(
                     book: state.latestBooks[index]
+                )
+
+                return .none
+            case let .lastYearBookTapped(index):
+                state.viewer = ViewerFeature.State(
+                    book: state.lastYearBooks[index]
                 )
 
                 return .none
@@ -205,7 +213,7 @@ public struct GalleryView: View {
                                         )
                                     },
                                     action: { index in
-                                        print(index)
+                                        viewStore.send(.lastYearBookTapped(index))
                                     }
                                 )
                             }

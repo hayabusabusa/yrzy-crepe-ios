@@ -33,6 +33,8 @@ public struct BookshelfFeature {
     }
 
     public enum Action {
+        /// 閉じるボタンタップ時の `Action`.
+        case closeButtonTapped
         /// 画面表示時の非同期処理が完了した後の `Action`.
         case response(Result<[Book], Error>)
         /// 画面表示時の非同期処理を実行するための `Action`.
@@ -54,6 +56,11 @@ public struct BookshelfFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .closeButtonTapped:
+
+                return .run { _ in
+                    await self.dismiss()
+                }
             case let .response(.success(books)):
                 state.books = IdentifiedArray(uniqueElements: books)
 
@@ -135,7 +142,18 @@ public struct BookshelfView: View {
                         }
                 }
             }
-            .padding(.vertical)
+            .navigationTitle(title(for: viewStore.collection))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
+                        viewStore.send(.closeButtonTapped)
+                    }, label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color(uiColor: .systemGray.withAlphaComponent(0.3)))
+                    })
+                }
+            }
             .task {
                 store.send(.task)
             }
@@ -152,7 +170,7 @@ extension BookshelfView {
         let configuration: Configuration
 
         var body: some View {
-            VStack {
+            VStack(spacing: 0) {
                 LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
                     if let image = state.image {
                         image
@@ -166,10 +184,12 @@ extension BookshelfView {
                 .clipped()
 
                 Text(configuration.title)
+                    .font(.callout)
+                    .bold()
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
+                    .padding(12)
             }
         }
     }
@@ -180,6 +200,17 @@ extension BookshelfView.ItemView {
         let title: String
         let imageURL: String?
         let createdAt: String?
+    }
+}
+
+private extension BookshelfView {
+    func title(for collection: BookshelfFeature.Collection) -> String {
+        switch collection {
+        case .latest:
+            "最近追加された作品"
+        case .lastYear:
+            "1年前に追加された作品"
+        }
     }
 }
 

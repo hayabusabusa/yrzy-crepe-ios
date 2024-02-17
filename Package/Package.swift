@@ -17,6 +17,9 @@ let package = Package(
             name: "AuthClientLive",
             targets: ["AuthClientLive"]),
         .library(
+            name: "BookshelfFeature",
+            targets: ["BookshelfFeature"]),
+        .library(
             name: "FirebaseClient",
             targets: ["FirebaseClient"]),
         .library(
@@ -102,6 +105,16 @@ let package = Package(
                 "SharedExtensions",
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
+            ]),
+        .target(
+            name: "BookshelfFeature",
+            dependencies: [
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
             ]),
         .target(
             name: "GalleryFeature",

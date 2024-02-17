@@ -6,6 +6,7 @@
 //
 
 import AuthClient
+import BookshelfFeature
 import ComposableArchitecture
 import FirestoreClient
 import NukeUI
@@ -22,26 +23,35 @@ public struct GalleryFeature {
         public var latestBooks = IdentifiedArrayOf<Book>()
         public var lastYearBooks = IdentifiedArrayOf<Book>()
         public var isLoading = false
+        @PresentationState public var bookshelf: BookshelfFeature.State?
         @PresentationState public var viewer: ViewerFeature.State?
 
         public init(
             latestBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             lastYearBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             isLoading: Bool = false,
+            bookshelf: BookshelfFeature.State? = nil,
             viewer: ViewerFeature.State? = nil
         ) {
             self.latestBooks = latestBooks
             self.lastYearBooks = lastYearBooks
             self.isLoading = isLoading
+            self.bookshelf = bookshelf
             self.viewer = viewer
         }
     }
 
     public enum Action {
+        /// 本棚画面い遷移する `Action`.
+        case bookshelf(PresentationAction<BookshelfFeature.Action>)
         /// 最近追加された作品一覧のアイテムがタップされた時の `Action`.
         case latestBookTapped(Int)
+        /// 最近追加された作品一覧のもっとみるボタンがタップされた時の `Action`.
+        case latestBookMoreTapped
         /// 1年前に追加された作品一覧のアイテムがタップされた時の `Action`.
         case lastYearBookTapped(Int)
+        /// 1年前に追加された作品一覧のもっとみるボタンがタップされた時の `Action`.
+        case lastYearBookMoreTapped
         /// 引っ張って更新の `Action`.
         case pullToRefresh
         /// ビューワー画面に遷移する `Aciton`.
@@ -72,15 +82,30 @@ public struct GalleryFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .bookshelf:
+
+                return .none
             case let .latestBookTapped(index):
                 state.viewer = ViewerFeature.State(
                     book: state.latestBooks[index]
                 )
 
                 return .none
+            case .latestBookMoreTapped:
+                state.bookshelf = BookshelfFeature.State(
+                    collection: .latest
+                )
+
+                return .none
             case let .lastYearBookTapped(index):
                 state.viewer = ViewerFeature.State(
                     book: state.lastYearBooks[index]
+                )
+
+                return .none
+            case .lastYearBookMoreTapped:
+                state.bookshelf = BookshelfFeature.State(
+                    collection: .lastYear
                 )
 
                 return .none
@@ -129,6 +154,9 @@ public struct GalleryFeature {
                     )
                 }
             }
+        }
+        .ifLet(\.$bookshelf, action: \.bookshelf) {
+            BookshelfFeature()
         }
         .ifLet(\.$viewer, action: \.viewer) {
             ViewerFeature()
@@ -194,7 +222,9 @@ public struct GalleryView: View {
                             GallerySectionTitleView(
                                 title: "最近追加された作品",
                                 buttonTitle: "もっとみる",
-                                action: {}
+                                action: {
+                                    viewStore.send(.latestBookMoreTapped)
+                                }
                             )
 
                             GallerySectionView(
@@ -215,7 +245,9 @@ public struct GalleryView: View {
                                 GallerySectionTitleView(
                                     title: "1年前に追加された作品",
                                     buttonTitle: "もっとみる",
-                                    action: {}
+                                    action: {
+                                        viewStore.send(.lastYearBookMoreTapped)
+                                    }
                                 )
 
                                 GallerySectionView(
@@ -250,6 +282,16 @@ public struct GalleryView: View {
             ) { store in
                 NavigationStack {
                     ViewerView(store: store)
+                }
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$bookshelf,
+                    action: { .bookshelf($0) }
+                )
+            ) { store in
+                NavigationStack {
+                    BookshelfView(store: store)
                 }
             }
         }

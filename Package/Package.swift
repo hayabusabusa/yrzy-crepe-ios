@@ -120,6 +120,7 @@ let package = Package(
             name: "GalleryFeature",
             dependencies: [
                 "AuthClient",
+                "BookshelfFeature",
                 "FirestoreClient",
                 "SharedModels",
                 "SharedExtensions",

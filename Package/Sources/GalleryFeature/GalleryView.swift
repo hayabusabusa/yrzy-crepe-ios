@@ -10,6 +10,7 @@ import BookshelfFeature
 import ComposableArchitecture
 import FirestoreClient
 import NukeUI
+import RandomDateGenerator
 import SharedExtensions
 import SharedModels
 import SwiftUI
@@ -45,17 +46,20 @@ public struct GalleryFeature {
     public struct State: Equatable {
         public var latestBooks = IdentifiedArrayOf<Book>()
         public var lastYearBooks = IdentifiedArrayOf<Book>()
+        public var randomBooks = IdentifiedArrayOf<Book>()
         public var isLoading = false
         @PresentationState public var destination: Destination.State?
 
         public init(
             latestBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             lastYearBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
+            randomBooks: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             isLoading: Bool = false,
             destination: Destination.State? = nil
         ) {
             self.latestBooks = latestBooks
             self.lastYearBooks = lastYearBooks
+            self.randomBooks = randomBooks
             self.isLoading = isLoading
             self.destination = destination
         }
@@ -83,11 +87,14 @@ public struct GalleryFeature {
     public struct Response {
         let latestBooks: [Book]
         let lastYearBooks: [Book]
+        let randomBooks: [Book]
 
         public init(
             latestBooks: [Book],
-            lastYearBooks: [Book]
+            lastYearBooks: [Book],
+            randomBooks: [Book]
         ) {
+            self.randomBooks = randomBooks
             self.latestBooks = latestBooks
             self.lastYearBooks = lastYearBooks
         }
@@ -96,6 +103,7 @@ public struct GalleryFeature {
     @Dependency(\.authClient) var authClient
     @Dependency(\.date) var dateGenerator
     @Dependency(\.firestoreClient) var firestoreClient
+    @Dependency(\.randomDateGenerator) var randomDateGenerator
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -150,6 +158,7 @@ public struct GalleryFeature {
             case let .response(.success(response)):
                 state.latestBooks = IdentifiedArray(uniqueElements: response.latestBooks)
                 state.lastYearBooks = IdentifiedArray(uniqueElements: response.lastYearBooks)
+                state.randomBooks = IdentifiedArray(uniqueElements: response.randomBooks)
                 state.isLoading = false
 
                 return .none
@@ -204,11 +213,18 @@ private extension GalleryFeature {
                 limit: 6
             )
         )
+        async let fetchRandomBooksTask = firestoreClient.fetchLatestBooks(
+            FirestoreClient.LatestBooksRequest(
+                afterDate: randomDateGenerator.sinceServiceLaunched(),
+                limit: 3
+            )
+        )
 
-        let results = try await (fetchLatestBooksTask, fetchLastYearBooksTask)
+        let results = try await (fetchLatestBooksTask, fetchLastYearBooksTask, fetchRandomBooksTask)
         return Response(
             latestBooks: results.0,
-            lastYearBooks: results.1
+            lastYearBooks: results.1,
+            randomBooks: results.2
         )
     }
 }
@@ -227,7 +243,7 @@ public struct GalleryView: View {
                     ScrollView {
                         LazyVStack {
                             GalleryHeaderView(
-                                pageViewConfigurations: viewStore.latestBooks.prefix(3).map {
+                                pageViewConfigurations: viewStore.randomBooks.map {
                                     .init(
                                         id: $0.id, 
                                         title: $0.title,

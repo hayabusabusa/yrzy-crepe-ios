@@ -125,6 +125,7 @@ let package = Package(
                 "AuthClient",
                 "BookshelfFeature",
                 "FirestoreClient",
+                "RandomDateGenerator",
                 "SharedModels",
                 "SharedExtensions",
                 "ViewerFeature",

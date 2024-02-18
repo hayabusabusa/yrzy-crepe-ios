@@ -18,7 +18,7 @@ struct GalleryHeaderView: View {
             }
         }
         .tabViewStyle(PageTabViewStyle())
-        .frame(height: 240)
+        .frame(height: 280)
     }
 }
 

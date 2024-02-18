@@ -10,11 +10,14 @@ import SwiftUI
 
 struct GalleryHeaderView: View {
     var pageViewConfigurations: [PageView.Configuration]
+    var action: ((Int) -> Void)?
 
     var body: some View {
         TabView {
-            ForEach(pageViewConfigurations) { configuration in
-                PageView(configuration: configuration)
+            ForEach(Array(pageViewConfigurations.enumerated()), id: \.offset) { enumerated in
+                PageView(configuration: enumerated.element) {
+                    action?(enumerated.offset)
+                }
             }
         }
         .tabViewStyle(PageTabViewStyle())
@@ -25,18 +28,23 @@ struct GalleryHeaderView: View {
 extension GalleryHeaderView {
     struct PageView: View {
         var configuration: Configuration
+        var action: (() -> Void)?
 
         var body: some View {
-            LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
-                if let image = state.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Color(.secondarySystemBackground)
+            Button {
+                action?()
+            } label: {
+                LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Color(.secondarySystemBackground)
+                    }
                 }
+                .clipped()
             }
-            .clipped()
         }
     }
 }

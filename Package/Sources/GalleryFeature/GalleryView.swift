@@ -78,6 +78,8 @@ public struct GalleryFeature {
         case lastYearBookMoreTapped
         /// 引っ張って更新の `Action`.
         case pullToRefresh
+        /// ヘッダーのランダムな作品一覧がタップされた時の `Action`.
+        case randomBookTapped(Int)
         /// 画面に必要な情報が全て返ってきた時の `Action`.
         case response(Result<Response, Error>)
         /// 非同期処理を実行するための `Action`.
@@ -155,6 +157,14 @@ public struct GalleryFeature {
                         )
                     )
                 }
+            case let .randomBookTapped(index):
+                state.destination = .viewer(
+                    ViewerFeature.State(
+                        book: state.randomBooks[index]
+                    )
+                )
+
+                return .none
             case let .response(.success(response)):
                 state.latestBooks = IdentifiedArray(uniqueElements: response.latestBooks)
                 state.lastYearBooks = IdentifiedArray(uniqueElements: response.lastYearBooks)
@@ -250,7 +260,9 @@ public struct GalleryView: View {
                                         imageURL: $0.thumbnailURL
                                     )
                                 }
-                            )
+                            ) { index in
+                                viewStore.send(.randomBookTapped(index))
+                            }
 
                             GalleryMenuView {
                                 // TODO

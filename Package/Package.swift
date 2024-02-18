@@ -35,6 +35,9 @@ let package = Package(
             name: "GalleryFeature",
             targets: ["GalleryFeature"]),
         .library(
+            name: "RandomDateGenerator",
+            targets: ["RandomDateGenerator"]),
+        .library(
             name: "SharedExtensions",
             targets: ["SharedExtensions"]),
         .library(
@@ -129,6 +132,11 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke"),
             ]),
         .target(
+            name: "RandomDateGenerator",
+            dependencies: [
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
             name: "SharedModels"),
         .target(
             name: "SharedExtensions"),
@@ -140,6 +148,11 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
                 .product(name: "SwiftUIPager", package: "SwiftUIPager"),
+            ]),
+        .testTarget(
+            name: "RandomDateGeneratorTests",
+            dependencies: [
+                "RandomDateGenerator",
             ]),
         .testTarget(
             name: "SharedExtensionsTests",

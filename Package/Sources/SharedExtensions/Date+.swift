@@ -23,4 +23,24 @@ public extension Date {
         component.year = -1
         return calendar.date(byAdding: component, to: self) ?? self
     }
+    
+    /// `Date` を任意のフォーマットで文字列に変換して返す.
+    /// - Parameters:
+    ///   - dateStyle: 日付のスタイル.
+    ///   - timeStyle: 時間のスタイル( デフォルトは `DateFormatter.Style.none` ).
+    ///   - locale: `Locale` ( デフォルトは日本 ).
+    /// - Returns: 変換した文字列.
+    func string(
+        for dateStyle: DateFormatter.Style,
+        timeStyle: DateFormatter.Style = .none,
+        locale: Locale = Locale(identifier: "ja_JP")
+    ) -> String {
+        dateFormatter.locale = locale
+        dateFormatter.dateStyle = dateStyle
+        dateFormatter.timeStyle = timeStyle
+        return dateFormatter.string(from: self)
+    }
 }
+
+/// 共通で利用するフォーマッター.
+private let dateFormatter = DateFormatter()

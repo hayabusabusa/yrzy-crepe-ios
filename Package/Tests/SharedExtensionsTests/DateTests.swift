@@ -56,6 +56,18 @@ final class DateTests: XCTestCase {
             XCTAssertEqual(stubDate.lastYear, expected)
         }
     }
+
+    func testString() {
+        XCTContext.runActivity(named: "任意の日付から `YYYY/MM/dd` のフォーマットで文字列を返すことができること") { _ in
+            let expected = "1996/01/12"
+            XCTAssertEqual(stubDate.string(for: .medium), expected)
+        }
+
+        XCTContext.runActivity(named: "任意の日付から `YYYY/MM/dd hh:mm` のフォーマットで文字列を返すことができること") { _ in
+            let expected = "1996/01/12 12:30"
+            XCTAssertEqual(stubDate.string(for: .medium, timeStyle: .short), expected)
+        }
+    }
 }
 
 private extension DateTests {

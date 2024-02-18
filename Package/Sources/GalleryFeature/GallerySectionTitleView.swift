@@ -23,6 +23,7 @@ struct GallerySectionTitleView: View {
             }, label: {
                 Text(buttonTitle)
                     .font(.caption)
+                    .bold()
             })
         }
         .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))

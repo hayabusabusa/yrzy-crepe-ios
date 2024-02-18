@@ -219,6 +219,9 @@ public struct GalleryView: View {
                                 }
                             )
 
+                            GalleryMenuView()
+                                .padding(.top, 8)
+
                             GallerySectionTitleView(
                                 title: "最近追加された作品",
                                 buttonTitle: "もっとみる",

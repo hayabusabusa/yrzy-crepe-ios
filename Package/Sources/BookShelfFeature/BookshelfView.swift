@@ -125,8 +125,8 @@ public struct BookshelfView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView {
                 ForEach(viewStore.books) { book in
-                    ItemView(
-                        configuration: BookshelfView.ItemView.Configuration(
+                    BookshelfItemView(
+                        configuration: BookshelfItemView.Configuration(
                             title: book.title,
                             imageURL: book.thumbnailURL,
                             createdAt: nil
@@ -162,44 +162,6 @@ public struct BookshelfView: View {
 
     public init(store: StoreOf<BookshelfFeature>) {
         self.store = store
-    }
-}
-
-extension BookshelfView {
-    struct ItemView: View {
-        let configuration: Configuration
-
-        var body: some View {
-            VStack(spacing: 0) {
-                LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
-                    if let image = state.image {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        Color(.secondarySystemBackground)
-                    }
-                }
-                .frame(height: 220)
-                .clipped()
-
-                Text(configuration.title)
-                    .font(.callout)
-                    .bold()
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-            }
-        }
-    }
-}
-
-extension BookshelfView.ItemView {
-    struct Configuration: Hashable {
-        let title: String
-        let imageURL: String?
-        let createdAt: String?
     }
 }
 

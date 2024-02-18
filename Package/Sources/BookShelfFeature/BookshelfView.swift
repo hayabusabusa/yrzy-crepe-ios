@@ -20,21 +20,28 @@ public struct BookshelfFeature {
         public let collection: Collection
         public var books = IdentifiedArrayOf<Book>()
         public var isLoading = false
+        public var isPaginationLoading = false
 
         public init(
             collection: Collection,
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
-            isLoading: Bool = false
+            isLoading: Bool = false,
+            isPaginationLoading: Bool = false
         ) {
             self.collection = collection
             self.books = books
             self.isLoading = isLoading
+            self.isPaginationLoading = isPaginationLoading
         }
     }
 
     public enum Action {
         /// 閉じるボタンタップ時の `Action`.
         case closeButtonTapped
+        /// `ScrollView` 内のアイテムが表示された時の `Action`.
+        case onAppearScrollViewContent(Int)
+        /// 追加読み込みの非同期処理が完了した後の `Action`.
+        case paginationResponse(Result<[Book], Error>)
         /// 画面表示時の非同期処理が完了した後の `Action`.
         case response(Result<[Book], Error>)
         /// 画面表示時の非同期処理を実行するための `Action`.
@@ -61,6 +68,46 @@ public struct BookshelfFeature {
                 return .run { _ in
                     await self.dismiss()
                 }
+            case let .onAppearScrollViewContent(offset):
+                // 既に追加ロード中の場合は何もしない.
+                guard !state.isPaginationLoading else {
+                    return .none
+                }
+
+                let threshold = 1
+                let scrolledOffset = (state.books.count - 1) - offset
+                let needsPagination = scrolledOffset <= threshold
+
+                // 追加ロードが発生する位置までスクロールされていない場合は何もしない.
+                guard needsPagination,
+                      let lastDate = state.books.last?.createdAt else {
+                    return .none
+                }
+                state.isPaginationLoading = true
+
+                let collection = state.collection
+                return .run { send in
+                    await send(
+                        .paginationResponse(
+                            Result {
+                                try await fetchNextBooks(
+                                    for: collection,
+                                    lastDate: lastDate
+                                )
+                            }
+                        )
+                    )
+                }
+            case let .paginationResponse(.success(books)):
+                state.books.append(contentsOf: books)
+                state.isPaginationLoading = false
+
+                return .none
+            case let .paginationResponse(.failure(error)):
+                print(error)
+                state.isPaginationLoading = false
+
+                return .none
             case let .response(.success(books)):
                 state.books = IdentifiedArray(uniqueElements: books)
 
@@ -114,6 +161,36 @@ private extension BookshelfFeature {
             )
         }
     }
+    
+    /// 追加の本一覧を取得する.
+    /// - Parameters:
+    ///   - collection: 本一覧の種類.
+    ///   - lastDate: 一覧に表示している本一覧 最後の要素の日付.
+    /// - Returns: 本一覧.
+    func fetchNextBooks(
+        for collection: Collection,
+        lastDate: Date
+    ) async throws -> [Book] {
+        switch collection {
+        case .latest:
+            return try await firestoreClient.fetchLatestBooks(
+                FirestoreClient.LatestBooksRequest(
+                    orderBy: "createdAt",
+                    isDescending: true,
+                    afterDate: lastDate,
+                    limit: 10
+                )
+            )
+        case .lastYear:
+            return try await firestoreClient.fetchCertainDateBooks(
+                FirestoreClient.CertainDateBooksRequest(
+                    date: lastDate,
+                    isDescending: true,
+                    limit: 10
+                )
+            )
+        }
+    }
 }
 
 // MARK: - View
@@ -124,22 +201,19 @@ public struct BookshelfView: View {
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView {
-                ForEach(viewStore.books) { book in
-                    BookshelfItemView(
-                        configuration: BookshelfItemView.Configuration(
-                            title: book.title,
-                            imageURL: book.thumbnailURL,
-                            createdAt: nil
+                LazyVStack {
+                    ForEach(Array(viewStore.books.enumerated()), id: \.offset) { enumerated in
+                        BookshelfItemView(
+                            configuration: BookshelfItemView.Configuration(
+                                title: enumerated.element.title,
+                                imageURL: enumerated.element.thumbnailURL,
+                                createdAt: nil
+                            )
                         )
-                    )
-                }
-            }
-            .background {
-                GeometryReader { proxy in
-                    Color.clear
-                        .onChange(of: proxy.frame(in: .named("ScrollView")).minY) { offset in
-                            print(proxy.size, offset)
+                        .onAppear {
+                            viewStore.send(.onAppearScrollViewContent(enumerated.offset))
                         }
+                    }
                 }
             }
             .navigationTitle(title(for: viewStore.collection))

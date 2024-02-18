@@ -97,7 +97,7 @@ public struct ViewerView: View {
                         viewStore.send(.closeButtonTapped)
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color(uiColor: .systemGray.withAlphaComponent(0.3)))
+                            .foregroundStyle(Color(.systemGray3))
                     })
                 }
             }

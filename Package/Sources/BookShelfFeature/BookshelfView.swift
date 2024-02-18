@@ -224,7 +224,7 @@ public struct BookshelfView: View {
                             configuration: BookshelfItemView.Configuration(
                                 title: enumerated.element.title,
                                 imageURL: enumerated.element.thumbnailURL,
-                                createdAt: nil
+                                createdAt: enumerated.element.createdAt.string(for: .medium, timeStyle: .short)
                             )
                         ) {
                             viewStore.send(.bookTapped(enumerated.offset))

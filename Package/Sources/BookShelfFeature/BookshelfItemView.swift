@@ -12,7 +12,7 @@ struct BookshelfItemView: View {
     struct Configuration: Hashable {
         let title: String
         let imageURL: String?
-        let createdAt: String?
+        let createdAt: String
     }
 
     let configuration: Configuration
@@ -35,13 +35,20 @@ struct BookshelfItemView: View {
                 .frame(height: 220)
                 .clipped()
 
-                Text(configuration.title)
-                    .font(.callout)
-                    .bold()
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(configuration.title)
+                        .font(.callout)
+                        .bold()
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                    
+                    Text(configuration.createdAt)
+                        .font(.caption)
+                        .foregroundStyle(Color(.lightGray))
+
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
             }
         }
         .foregroundStyle(
@@ -56,7 +63,7 @@ struct BookshelfItemView: View {
         configuration: BookshelfItemView.Configuration(
             title: "タイトル",
             imageURL: nil,
-            createdAt: nil
+            createdAt: "2024/02/18 12:00"
         ),
         action: nil
     )

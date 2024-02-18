@@ -15,7 +15,8 @@ struct GallerySectionTitleView: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(.title3)
+                .bold()
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             Button(action: {
@@ -23,7 +24,6 @@ struct GallerySectionTitleView: View {
             }, label: {
                 Text(buttonTitle)
                     .font(.caption)
-                    .bold()
             })
         }
         .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
@@ -35,7 +35,7 @@ struct GallerySectionTitleView: View {
     GallerySectionTitleView(
         title: "最近追加された作品",
         buttonTitle: "もっとみる",
-        action: {  }
+        action: {}
     )
 }
 #endif

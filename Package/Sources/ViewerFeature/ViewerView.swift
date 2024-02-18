@@ -74,9 +74,9 @@ public struct ViewerView: View {
                     page: Page.withIndex(viewStore.pageIndex),
                     data: makeConfigurations(fromImageURLs: viewStore.book.imageURLs)
                 ) { configuration in
-                    PageView(configuration: configuration)
+                    ViewerPageView(configuration: configuration)
                 }
-                .onPageWillChange { pageIndex in
+                .onPageChanged { pageIndex in
                     viewStore.send(.pageChanged(pageIndex))
                 }
                 .horizontal(.endToStart)
@@ -110,40 +110,15 @@ public struct ViewerView: View {
 }
 
 private extension ViewerView {
-    func makeConfigurations(fromImageURLs imageURLs: [String]) -> [PageView.Configuration] {
+    func makeConfigurations(fromImageURLs imageURLs: [String]) -> [ViewerPageView.Configuration] {
         imageURLs
             .compactMap { URL(string: $0) }
             .map {
-                PageView.Configuration(
+                ViewerPageView.Configuration(
                     id: $0.absoluteString,
                     imageURL: $0
                 )
             }
-    }
-}
-
-extension ViewerView {
-    struct PageView: View {
-        var configuration: Configuration
-
-        var body: some View {
-            LazyImage(url: configuration.imageURL) { state in
-                if let image = state.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Color(.secondarySystemBackground)
-                }
-            }
-        }
-    }
-}
-
-extension ViewerView.PageView {
-    struct Configuration: Identifiable, Hashable {
-        let id: String
-        let imageURL: URL
     }
 }
 

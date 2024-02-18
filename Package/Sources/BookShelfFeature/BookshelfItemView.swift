@@ -16,29 +16,37 @@ struct BookshelfItemView: View {
     }
 
     let configuration: Configuration
+    var action: (() -> Void)?
 
     var body: some View {
-        VStack(spacing: 0) {
-            LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
-                if let image = state.image {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Color(.secondarySystemBackground)
+        Button {
+            action?()
+        } label: {
+            VStack(spacing: 0) {
+                LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
+                    if let image = state.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Color(.secondarySystemBackground)
+                    }
                 }
-            }
-            .frame(height: 220)
-            .clipped()
+                .frame(height: 220)
+                .clipped()
 
-            Text(configuration.title)
-                .font(.callout)
-                .bold()
-                .lineLimit(3)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
+                Text(configuration.title)
+                    .font(.callout)
+                    .bold()
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+            }
         }
+        .foregroundStyle(
+            Color(uiColor: .label)
+        )
     }
 }
 
@@ -49,7 +57,8 @@ struct BookshelfItemView: View {
             title: "タイトル",
             imageURL: nil,
             createdAt: nil
-        )
+        ),
+        action: nil
     )
 }
 #endif

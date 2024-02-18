@@ -11,6 +11,7 @@ import NukeUI
 import SharedExtensions
 import SharedModels
 import SwiftUI
+import ViewerFeature
 
 // MARK: - Reducer
 
@@ -21,21 +22,26 @@ public struct BookshelfFeature {
         public var books = IdentifiedArrayOf<Book>()
         public var isLoading = false
         public var isPaginationLoading = false
+        @PresentationState public var viewer: ViewerFeature.State?
 
         public init(
             collection: Collection,
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             isLoading: Bool = false,
-            isPaginationLoading: Bool = false
+            isPaginationLoading: Bool = false,
+            viewer: ViewerFeature.State? = nil
         ) {
             self.collection = collection
             self.books = books
             self.isLoading = isLoading
             self.isPaginationLoading = isPaginationLoading
+            self.viewer = viewer
         }
     }
 
     public enum Action {
+        /// 一覧の本タップ時の `Action`.
+        case bookTapped(Int)
         /// 閉じるボタンタップ時の `Action`.
         case closeButtonTapped
         /// `ScrollView` 内のアイテムが表示された時の `Action`.
@@ -46,6 +52,8 @@ public struct BookshelfFeature {
         case response(Result<[Book], Error>)
         /// 画面表示時の非同期処理を実行するための `Action`.
         case task
+        /// ビューワー画面に遷移する `Action`.
+        case viewer(PresentationAction<ViewerFeature.Action>)
     }
 
     /// 本一覧の種類.
@@ -63,6 +71,12 @@ public struct BookshelfFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .bookTapped(index):
+                state.viewer = ViewerFeature.State(
+                    book: state.books[index]
+                )
+
+                return .none
             case .closeButtonTapped:
 
                 return .run { _ in
@@ -128,7 +142,13 @@ public struct BookshelfFeature {
                         )
                     )
                 }
+            case .viewer:
+
+                return .none
             }
+        }
+        .ifLet(\.$viewer, action: \.viewer) {
+            ViewerFeature()
         }
     }
 
@@ -209,7 +229,9 @@ public struct BookshelfView: View {
                                 imageURL: enumerated.element.thumbnailURL,
                                 createdAt: nil
                             )
-                        )
+                        ) {
+                            viewStore.send(.bookTapped(enumerated.offset))
+                        }
                         .onAppear {
                             viewStore.send(.onAppearScrollViewContent(enumerated.offset))
                         }
@@ -230,6 +252,16 @@ public struct BookshelfView: View {
             }
             .task {
                 store.send(.task)
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$viewer,
+                    action: { .viewer($0) }
+                )
+            ) { store in
+                NavigationStack {
+                    ViewerView(store: store)
+                }
             }
         }
     }

@@ -219,8 +219,13 @@ public struct GalleryView: View {
                                 }
                             )
 
-                            GalleryMenuView()
-                                .padding(.vertical, 8)
+                            GalleryMenuView {
+                                // TODO
+                            } scrapingAction: {
+                                // TODO
+                            } favoriteAction: {
+                                // TODO
+                            }
 
                             GallerySectionTitleView(
                                 title: "最近追加された作品",

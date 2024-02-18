@@ -45,6 +45,7 @@ struct GalleryMenuView: View {
 
             Spacer()
         }
+        .padding(8)
     }
 }
 

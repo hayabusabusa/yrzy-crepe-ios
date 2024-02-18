@@ -27,7 +27,7 @@ struct GalleryMenuView: View {
             Spacer()
 
             ItemView(
-                imageName: "doc.fill.badge.plus",
+                imageName: "doc.badge.plus",
                 text: "スクレイピング"
             ) {
                 scrapingAction?()
@@ -37,7 +37,7 @@ struct GalleryMenuView: View {
             Spacer()
 
             ItemView(
-                imageName: "star.fill",
+                imageName: "star",
                 text: "お気に入り"
             ) {
                 favoriteAction?()

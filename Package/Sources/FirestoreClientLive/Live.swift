@@ -35,7 +35,7 @@ extension FirestoreClient: DependencyKey {
         } fetchLatestBooks: { request in
             let collectionPath = Path.books.collection
             let snapshot = try await db.collection(collectionPath)
-                .order(by: request.orderBy, descending: request.isDescending)
+                .order(by: "createdAt", descending: true)
                 .start(after: [request.afterDate])
                 .limit(to: request.limit)
                 .getDocuments()

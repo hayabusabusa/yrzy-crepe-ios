@@ -194,16 +194,13 @@ private extension GalleryFeature {
         let now = dateGenerator.now
         async let fetchLatestBooksTask = firestoreClient.fetchLatestBooks(
             FirestoreClient.LatestBooksRequest(
-                orderBy: "createdAt",
-                isDescending: true,
                 afterDate: now,
                 limit: 6
             )
         )
-        async let fetchLastYearBooksTask = firestoreClient.fetchCertainDateBooks(
-            FirestoreClient.CertainDateBooksRequest(
-                date: now.lastYear,
-                isDescending: true,
+        async let fetchLastYearBooksTask = firestoreClient.fetchLatestBooks(
+            FirestoreClient.LatestBooksRequest(
+                afterDate: now.lastYear,
                 limit: 6
             )
         )

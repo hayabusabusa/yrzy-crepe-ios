@@ -162,17 +162,14 @@ private extension BookshelfFeature {
         case .latest:
             return try await firestoreClient.fetchLatestBooks(
                 FirestoreClient.LatestBooksRequest(
-                    orderBy: "createdAt",
-                    isDescending: true,
                     afterDate: now,
                     limit: 10
                 )
             )
         case .lastYear:
-            return try await firestoreClient.fetchCertainDateBooks(
-                FirestoreClient.CertainDateBooksRequest(
-                    date: now.lastYear,
-                    isDescending: true,
+            return try await firestoreClient.fetchLatestBooks(
+                FirestoreClient.LatestBooksRequest(
+                    afterDate: now.lastYear,
                     limit: 10
                 )
             )
@@ -189,20 +186,10 @@ private extension BookshelfFeature {
         lastDate: Date
     ) async throws -> [Book] {
         switch collection {
-        case .latest:
+        case .latest, .lastYear:
             return try await firestoreClient.fetchLatestBooks(
                 FirestoreClient.LatestBooksRequest(
-                    orderBy: "createdAt",
-                    isDescending: true,
                     afterDate: lastDate,
-                    limit: 10
-                )
-            )
-        case .lastYear:
-            return try await firestoreClient.fetchCertainDateBooks(
-                FirestoreClient.CertainDateBooksRequest(
-                    date: lastDate,
-                    isDescending: true,
                     limit: 10
                 )
             )

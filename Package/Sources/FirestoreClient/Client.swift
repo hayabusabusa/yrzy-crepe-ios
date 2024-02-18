@@ -52,10 +52,6 @@ public struct FirestoreClient {
 public extension FirestoreClient {
     /// 作品一覧を日付順に取得するためのリクエスト.
     struct LatestBooksRequest {
-        /// ドキュメントを並び替える対象にするプロパティ名.
-        public let orderBy: String
-        /// 降順にするかどうか.
-        public let isDescending: Bool
         /// ページネーションのために利用する日付.
         ///
         /// この日付以降のデータを取得する.
@@ -63,12 +59,8 @@ public extension FirestoreClient {
         /// 一度に取得する件数.
         public let limit: Int
 
-        public init(orderBy: String, 
-                    isDescending: Bool,
-                    afterDate: Date,
+        public init(afterDate: Date,
                     limit: Int) {
-            self.orderBy = orderBy
-            self.isDescending = isDescending
             self.afterDate = afterDate
             self.limit = limit
         }

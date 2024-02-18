@@ -93,20 +93,18 @@ public struct BookshelfFeature {
                 let needsPagination = scrolledOffset <= threshold
 
                 // 追加ロードが発生する位置までスクロールされていない場合は何もしない.
-                guard needsPagination,
-                      let lastDate = state.books.last?.createdAt else {
+                guard needsPagination else {
                     return .none
                 }
-                state.isPaginationLoading = true
 
-                let collection = state.collection
-                return .run { send in
+                state.isPaginationLoading = true
+                return .run { [state] send in
                     await send(
                         .paginationResponse(
                             Result {
                                 try await fetchNextBooks(
-                                    for: collection,
-                                    lastDate: lastDate
+                                    for: state.collection,
+                                    lastDate: state.books.last?.createdAt ?? Date()
                                 )
                             }
                         )
@@ -132,8 +130,7 @@ public struct BookshelfFeature {
                 return .none
             case .task:
 
-                let collection = state.collection
-                return .run { send in
+                return .run { [collection = state.collection] send in
                     await send(
                         .response(
                             Result {

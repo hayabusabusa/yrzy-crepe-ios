@@ -13,18 +13,24 @@ public struct FavoriteBook: Codable, Identifiable, Equatable {
     public var id: String?
     /// 作品のタイトル.
     public let title: String
-    /// 作品が追加された日付.
+    /// お気に入りした日付.
     public let createdAt: Date
+    /// お気に入りした作品が追加された日付.
+    public let publishedAt: Date
     /// 作品のサムネイル画像の URL.
     public let thumbnailURL: String?
 
-    public init(id: String, 
-                title: String,
-                createdAt: Date,
-                thumbnailURL: String?) {
+    public init(
+        id: String,
+        title: String,
+        createdAt: Date,
+        publishedAt: Date,
+        thumbnailURL: String?
+    ) {
         self.id = id
         self.title = title
         self.createdAt = createdAt
+        self.publishedAt = publishedAt
         self.thumbnailURL = thumbnailURL
     }
 }

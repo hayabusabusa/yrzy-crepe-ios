@@ -96,7 +96,8 @@ extension FirestoreClient: DependencyKey {
             let encoded = try encoder.encode(user)
 
             try await db.collection(collectionPath)
-                .addDocument(data: encoded)
+                .document(user.id)
+                .setData(encoded)
         } removeFavoriteBook: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
             try await db.collection(collectionPath)

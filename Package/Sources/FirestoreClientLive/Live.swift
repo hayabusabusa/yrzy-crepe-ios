@@ -93,7 +93,8 @@ extension FirestoreClient: DependencyKey {
                 .map { try decoder.decode(Advertisement.self, from: $0.data()) }
         } addUser: { user in
             let collectionPath = Path.users.collection
-            let encoded = try encoder.encode(user)
+            var encoded = try encoder.encode(user)
+            encoded.removeValue(forKey: "id")
 
             try await db.collection(collectionPath)
                 .document(user.id)

@@ -15,6 +15,7 @@
 		A5B5DCCA2B4D5AC60031FE18 /* FirestoreClientLive in Frameworks */ = {isa = PBXBuildFile; productRef = A5B5DCC92B4D5AC60031FE18 /* FirestoreClientLive */; };
 		A5B855F42B6F980F006366A1 /* FirebaseClientLive in Frameworks */ = {isa = PBXBuildFile; productRef = A5B855F32B6F980F006366A1 /* FirebaseClientLive */; };
 		A5B855F62B6F9DD8006366A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B855F52B6F9DD8006366A1 /* AppDelegate.swift */; };
+		A5BC47652B84DD3300D67BA6 /* App.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = A5BC47642B84DD3300D67BA6 /* App.xctestplan */; };
 		A5F7CB192B4BF70F005907FD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		A54CF7EA2B4AC16C008A0FFF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A54CF7ED2B4AC16C008A0FFF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		A5B855F52B6F9DD8006366A1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A5BC47642B84DD3300D67BA6 /* App.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = App.xctestplan; sourceTree = "<group>"; };
 		A5D170BE2B77AA8800C88A7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +70,7 @@
 				A54CF7E62B4AC16A008A0FFF /* CrepeApp.swift */,
 				A5F7CB182B4BF70F005907FD /* GoogleService-Info.plist */,
 				A54CF7EA2B4AC16C008A0FFF /* Assets.xcassets */,
+				A5BC47642B84DD3300D67BA6 /* App.xctestplan */,
 				A54CF7EC2B4AC16C008A0FFF /* Preview Content */,
 			);
 			path = App;
@@ -155,6 +158,7 @@
 				A54CF7EE2B4AC16C008A0FFF /* Preview Assets.xcassets in Resources */,
 				A54CF7EB2B4AC16C008A0FFF /* Assets.xcassets in Resources */,
 				A5F7CB192B4BF70F005907FD /* GoogleService-Info.plist in Resources */,
+				A5BC47652B84DD3300D67BA6 /* App.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

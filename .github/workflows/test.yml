@@ -18,6 +18,7 @@ jobs:
       - name: Setup GoogleService-info.plist
         run: |
           echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > GoogleService-Info.plist.txt
+          ls
           openssl -d -in GoogleService-Info.plist.txt -out App/App/GoogleService-Info.plist
       - name: Set default scheme as App
         run: |

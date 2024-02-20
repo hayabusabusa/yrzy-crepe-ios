@@ -15,6 +15,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup GoogleService-info.plist
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > GoogleService-Info.plist.txt
+          base64 --decode GoogleService-Info.plist.txt > App/App/GoogleService-Info.plist
       - name: Set default scheme as App
         run: |
           default="App"

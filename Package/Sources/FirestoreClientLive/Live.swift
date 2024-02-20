@@ -69,6 +69,18 @@ extension FirestoreClient: DependencyKey {
                 .getDocument()
 
             return snapshot.exists
+        } addFavoriteBook: { request in
+            let collectionPath = Path.favorites(for: request.userID).collection
+            var encoded = try encoder.encode(request.favoriteBook)
+            encoded.removeValue(forKey: "id")
+
+            guard let id = request.favoriteBook.id else {
+                fatalError("`FavoriteBook.id` is nil")
+            }
+
+            try await db.collection(collectionPath)
+                .document(id)
+                .setData(encoded)
         } fetchLatestFavoriteBooks: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
             let snapshot = try await db.collection(collectionPath)

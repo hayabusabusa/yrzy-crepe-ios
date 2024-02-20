@@ -9,8 +9,8 @@ on:
 
 jobs:
   build:
-    name: Build and Test
-    runs-on: macos-latest
+    name: Test
+    runs-on: macos-14
 
     steps:
       - name: Checkout

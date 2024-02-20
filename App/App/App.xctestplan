@@ -1,0 +1,49 @@
+{
+  "configurations" : [
+    {
+      "id" : "77816864-2FB0-467C-8443-6037E9681EA5",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "RandomDateGeneratorTests",
+          "name" : "RandomDateGeneratorTests"
+        },
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "SharedExtensionsTests",
+          "name" : "SharedExtensionsTests"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:App.xcodeproj",
+      "identifier" : "A54CF7E22B4AC16A008A0FFF",
+      "name" : "App"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "RandomDateGeneratorTests",
+        "name" : "RandomDateGeneratorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "SharedExtensionsTests",
+        "name" : "SharedExtensionsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

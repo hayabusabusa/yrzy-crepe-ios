@@ -95,6 +95,17 @@ extension FirestoreClient: DependencyKey {
                     decoded.id = document.documentID
                     return decoded
                 }
+        } favoriteBookExists: { request in
+            guard let bookID = request.bookID else {
+                fatalError("`Book.id` is nil.")
+            }
+
+            let collectionPath = Path.favorites(for: request.userID).collection
+            let snapshot = try await db.collection(collectionPath)
+                .document(bookID)
+                .getDocument()
+
+            return snapshot.exists
         } fetchAdvertisements: {
             let collectionPath = Path.advertisements.collection
             let snapshot = try await db.collection(collectionPath)

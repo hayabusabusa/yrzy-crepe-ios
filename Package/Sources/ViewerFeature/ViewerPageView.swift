@@ -26,7 +26,6 @@ struct ViewerPageView: View {
                     : image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-
             } else {
                 Color(.secondarySystemBackground)
             }

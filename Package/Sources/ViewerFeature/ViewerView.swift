@@ -129,26 +129,11 @@ public struct ViewerFeature {
                     await send(
                         .response(
                             Result {
-                                if state.isFavorite {
-                                    try await self.firestoreClient.removeFavoriteBook(
-                                        FirestoreClient.RemoveFavoriteBookRequest(
-                                            userID: uid,
-                                            bookID: state.book.id
-                                        )
-                                    )
-                                    return Response(isFavorite: false)
-                                } else {
-                                    try await self.firestoreClient.addFavoriteBook(
-                                        FirestoreClient.AddFavoriteBookRequest(
-                                            userID: uid,
-                                            favoriteBook: FavoriteBook(
-                                                book: state.book,
-                                                createdAt: dateGenerator.now
-                                            )
-                                        )
-                                    )
-                                    return Response(isFavorite: true)
-                                }
+                                try await self.toggleFavorite(
+                                    uid: uid,
+                                    book: state.book,
+                                    isFavorite: state.isFavorite
+                                )
                             }
                         )
                     )
@@ -158,6 +143,41 @@ public struct ViewerFeature {
     }
 
     public init() {}
+}
+
+private extension ViewerFeature {
+    /// 作品のお気に入り状態を切り替える.
+    /// - Parameters:
+    ///   - uid: サインイン中のユーザー ID.
+    ///   - book: お気に入り対象の作品のデータ.
+    ///   - isFavorite: お気に入りにするかどうかのフラグ.
+    /// - Returns: 切り替え後のレスポンス.
+    func toggleFavorite(
+        uid: String,
+        book: Book,
+        isFavorite: Bool
+    ) async throws -> Response {
+        if isFavorite {
+            try await firestoreClient.removeFavoriteBook(
+                FirestoreClient.RemoveFavoriteBookRequest(
+                    userID: uid,
+                    bookID: book.id
+                )
+            )
+            return Response(isFavorite: false)
+        } else {
+            try await firestoreClient.addFavoriteBook(
+                FirestoreClient.AddFavoriteBookRequest(
+                    userID: uid,
+                    favoriteBook: FavoriteBook(
+                        book: book,
+                        createdAt: dateGenerator.now
+                    )
+                )
+            )
+            return Response(isFavorite: true)
+        }
+    }
 }
 
 extension FavoriteBook {

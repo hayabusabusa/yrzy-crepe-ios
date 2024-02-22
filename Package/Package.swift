@@ -144,6 +144,7 @@ let package = Package(
         .target(
             name: "ViewerFeature",
             dependencies: [
+                "AuthClient",
                 "FirestoreClient",
                 "SharedModels",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

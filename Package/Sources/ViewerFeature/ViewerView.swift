@@ -133,7 +133,7 @@ public struct ViewerFeature {
                                     try await self.firestoreClient.removeFavoriteBook(
                                         FirestoreClient.RemoveFavoriteBookRequest(
                                             userID: uid,
-                                            documentID: state.book.id ?? ""
+                                            bookID: state.book.id
                                         )
                                     )
                                     return Response(isFavorite: false)

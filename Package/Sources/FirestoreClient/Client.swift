@@ -164,15 +164,17 @@ public extension FirestoreClient {
     struct RemoveFavoriteBookRequest {
         /// ユーザー ID.
         public let userID: String
+        /// 作品の ID.
+        ///
         /// `/users/{userID}/favorites` に格納したドキュメントの ID.
-        public let documentID: String
+        public let bookID: String?
 
         public init(
             userID: String,
-            documentID: String
+            bookID: String?
         ) {
             self.userID = userID
-            self.documentID = documentID
+            self.bookID = bookID
         }
     }
 }

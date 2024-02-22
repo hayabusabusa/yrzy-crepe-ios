@@ -123,9 +123,13 @@ extension FirestoreClient: DependencyKey {
                 .document(user.id)
                 .setData(encoded)
         } removeFavoriteBook: { request in
+            guard let bookID = request.bookID else {
+                fatalError("`Book.id` is nil.")
+            }
+
             let collectionPath = Path.favorites(for: request.userID).collection
             try await db.collection(collectionPath)
-                .document(request.documentID)
+                .document(bookID)
                 .delete()
         }
     }

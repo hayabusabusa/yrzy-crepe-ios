@@ -44,6 +44,9 @@ let package = Package(
             name: "SharedExtensions",
             targets: ["SharedExtensions"]),
         .library(
+            name: "SharedViews",
+            targets: ["SharedViews"]),
+        .library(
             name: "ViewerFeature",
             targets: ["ViewerFeature"]),
     ],
@@ -131,6 +134,7 @@ let package = Package(
                 "RandomDateGenerator",
                 "SharedModels",
                 "SharedExtensions",
+                "SharedViews",
                 "ViewerFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
@@ -151,15 +155,18 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke"),
             ]),
         .target(
+            name: "SharedExtensions"),
+        .target(
             name: "SharedModels"),
         .target(
-            name: "SharedExtensions"),
+            name: "SharedViews"),
         .target(
             name: "ViewerFeature",
             dependencies: [
                 "AuthClient",
                 "FirestoreClient",
                 "SharedModels",
+                "SharedViews",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
                 .product(name: "SwiftUIPager", package: "SwiftUIPager"),

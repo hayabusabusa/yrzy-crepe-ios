@@ -38,15 +38,18 @@ public struct FavoritesFeature {
     public struct State: Equatable {
         public var books = IdentifiedArrayOf<FavoriteBook>()
         public var isLoading = false
+        public var isPaginationLoading = false
         @PresentationState public var destination: Destination.State?
 
         public init(
             books: IdentifiedArrayOf<FavoriteBook> = IdentifiedArrayOf<FavoriteBook>(),
             isLoading: Bool = false,
+            isPaginationLoading: Bool = false,
             destination: Destination.State? = nil
         ) {
             self.books = books
             self.isLoading = isLoading
+            self.isPaginationLoading = isPaginationLoading
             self.destination = destination
         }
     }
@@ -58,6 +61,10 @@ public struct FavoritesFeature {
         case closeButtonTapped
         /// 画面遷移用の `Action`.
         case destination(PresentationAction<Destination.Action>)
+        /// `ScrollView` 内のアイテムが表示された時の `Action`.
+        case onAppearScrollViewContent(Int)
+        /// 追加読み込みの非同期処理が完了した後の `Action`.
+        case paginationResponse(Result<[FavoriteBook], Error>)
         /// 非同期処理完了時の `Action`.
         case response(Result<[FavoriteBook], Error>)
         /// 非同期処理実行用の `Action`.
@@ -88,6 +95,50 @@ public struct FavoritesFeature {
             case .destination:
                 
                 return .none
+            case let .onAppearScrollViewContent(offset):
+                // 既に追加ロード中の場合は何もしない.
+                guard !state.isPaginationLoading,
+                      let uid = authClient.uid() else {
+                    return .none
+                }
+
+                let threshold = 3
+                let scrolledOffset = (state.books.count - 1) - offset
+                let needsPagination = scrolledOffset <= threshold
+
+                // 追加ロードが発生する位置までスクロールされていない場合は何もしない.
+                guard needsPagination else {
+                    return .none
+                }
+
+                state.isPaginationLoading = true
+                return .run { [state] send in
+                    await send(
+                        .paginationResponse(
+                            Result {
+                                try await firestoreClient.fetchLatestFavoriteBooks(
+                                    FirestoreClient.LatestFavoriteBookRequest(
+                                        userID: uid,
+                                        orderBy: "createdAt",
+                                        isDescending: true,
+                                        afterDate: state.books.last?.createdAt ?? Date(),
+                                        limit: 15
+                                    )
+                                )
+                            }
+                        )
+                    )
+                }
+            case let .paginationResponse(.success(books)):
+                state.books.append(contentsOf: books)
+                state.isPaginationLoading = false
+
+                return .none
+            case let .paginationResponse(.failure(error)):
+                state.isPaginationLoading = false
+                print(error)
+
+                return .none
             case let .response(.success(books)):
                 state.isLoading = false
                 state.books = IdentifiedArray(uniqueElements: books)
@@ -114,7 +165,7 @@ public struct FavoritesFeature {
                                         orderBy: "createdAt",
                                         isDescending: true,
                                         afterDate: dateGenerator.now,
-                                        limit: 10
+                                        limit: 15
                                     )
                                 )
                             }
@@ -149,6 +200,9 @@ public struct FavoritesView: View {
                         ) { index, configuration in
                             FavoritesItemView(configuration: configuration) {
                                 viewStore.send(.bookTapped(index))
+                            }
+                            .onAppear {
+                                viewStore.send(.onAppearScrollViewContent(index))
                             }
                         }
                     }

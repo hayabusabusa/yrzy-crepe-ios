@@ -38,6 +38,9 @@ let package = Package(
             name: "RandomDateGenerator",
             targets: ["RandomDateGenerator"]),
         .library(
+            name: "SearchFeature",
+            targets: ["SearchFeature"]),
+        .library(
             name: "SharedExtensions",
             targets: ["SharedExtensions"]),
         .library(
@@ -136,6 +139,16 @@ let package = Package(
             name: "RandomDateGenerator",
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "SearchFeature",
+            dependencies: [
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
             ]),
         .target(
             name: "SharedModels"),

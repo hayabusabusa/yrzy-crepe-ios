@@ -376,6 +376,7 @@ let booksStub = Array(repeating: 0, count: 6)
             GalleryFeature()
         } withDependencies: {
             $0.authClient.isSignIn = { true }
+            $0.authClient.uid = { "" }
             $0.firestoreClient.fetchLatestBooks = { _ in booksStub }
             $0.firestoreClient.fetchCertainDateBooks = { _ in booksStub }
         }

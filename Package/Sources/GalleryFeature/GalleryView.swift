@@ -8,6 +8,7 @@
 import AuthClient
 import BookshelfFeature
 import ComposableArchitecture
+import FavoritesFeature
 import FirestoreClient
 import NukeUI
 import RandomDateGenerator
@@ -25,17 +26,22 @@ public struct GalleryFeature {
     public struct Destination {
         public enum State: Equatable {
             case bookshelf(BookshelfFeature.State)
+            case favorites(FavoritesFeature.State)
             case viewer(ViewerFeature.State)
         }
 
         public enum Action {
             case bookshelf(BookshelfFeature.Action)
+            case favorites(FavoritesFeature.Action)
             case viewer(ViewerFeature.Action)
         }
 
         public var body: some ReducerOf<Self> {
             Scope(state: \.bookshelf, action: \.bookshelf) {
                 BookshelfFeature()
+            }
+            Scope(state: \.favorites, action: \.favorites) {
+                FavoritesFeature()
             }
             Scope(state: \.viewer, action: \.viewer) {
                 ViewerFeature()
@@ -66,6 +72,8 @@ public struct GalleryFeature {
     }
 
     public enum Action {
+        /// メニュー内の「お気に入り」をタップした時の `Action`.
+        case favoritesButtonTapped
         /// 画面遷移用の `Reducer` に伝える `Action`.
         case destination(PresentationAction<Destination.Action>)
         /// 最近追加された作品一覧のアイテムがタップされた時の `Action`.
@@ -110,13 +118,19 @@ public struct GalleryFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .favoritesButtonTapped:
+                state.destination = .favorites(
+                    FavoritesFeature.State()
+                )
+
+                return .none
             case .destination:
 
                 return .none
             case let .latestBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.latestBooks[index]
+                        source: .book(state.latestBooks[index])
                     )
                 )
 
@@ -132,7 +146,7 @@ public struct GalleryFeature {
             case let .lastYearBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.lastYearBooks[index]
+                        source: .book(state.lastYearBooks[index])
                     )
                 )
 
@@ -160,7 +174,7 @@ public struct GalleryFeature {
             case let .randomBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.randomBooks[index]
+                        source: .book(state.randomBooks[index])
                     )
                 )
 
@@ -269,7 +283,7 @@ public struct GalleryView: View {
                             } scrapingAction: {
                                 // TODO
                             } favoriteAction: {
-                                // TODO
+                                viewStore.send(.favoritesButtonTapped)
                             }
 
                             GallerySectionTitleView(
@@ -326,22 +340,32 @@ public struct GalleryView: View {
             }
             .fullScreenCover(
                 store: store.scope(
-                    state: \.$destination.viewer,
-                    action: \.destination.viewer
-                )
-            ) { store in
-                NavigationStack {
-                    ViewerView(store: store)
-                }
-            }
-            .fullScreenCover(
-                store: store.scope(
                     state: \.$destination.bookshelf,
                     action: \.destination.bookshelf
                 )
             ) { store in
                 NavigationStack {
                     BookshelfView(store: store)
+                }
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$destination.favorites,
+                    action: \.destination.favorites
+                )
+            ) { store in
+                NavigationStack {
+                    FavoritesView(store: store)
+                }
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$destination.viewer,
+                    action: \.destination.viewer
+                )
+            ) { store in
+                NavigationStack {
+                    ViewerView(store: store)
                 }
             }
             .task {
@@ -376,6 +400,7 @@ let booksStub = Array(repeating: 0, count: 6)
             GalleryFeature()
         } withDependencies: {
             $0.authClient.isSignIn = { true }
+            $0.authClient.uid = { "" }
             $0.firestoreClient.fetchLatestBooks = { _ in booksStub }
             $0.firestoreClient.fetchCertainDateBooks = { _ in booksStub }
         }

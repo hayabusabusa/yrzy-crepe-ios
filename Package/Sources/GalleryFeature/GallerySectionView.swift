@@ -6,6 +6,7 @@
 //
 
 import NukeUI
+import SharedViews
 import SwiftUI
 
 struct GallerySectionView: View {
@@ -25,7 +26,7 @@ struct GallerySectionView: View {
                 }
             }
         }
-        .padding([.trailing, .leading], 8)
+        .padding([.trailing, .leading], 16)
     }
 }
 
@@ -41,14 +42,15 @@ extension GallerySectionView {
                 VStack {
                     LazyImage(url: configuration.imageURL.flatMap { URL(string: $0) }) { state in
                         if let image = state.image {
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
+                            AdjustedRatioImage(
+                                image: image,
+                                uiImage: state.imageContainer?.image
+                            )
                         } else {
                             Color(.secondarySystemBackground)
                         }
                     }
-                    .frame(height: 120)
+                    .frame(height: 108)
                     .clipped()
 
                     Text(configuration.title)

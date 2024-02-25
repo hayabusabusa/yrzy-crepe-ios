@@ -73,7 +73,7 @@ public struct BookshelfFeature {
             switch action {
             case let .bookTapped(index):
                 state.viewer = ViewerFeature.State(
-                    book: state.books[index]
+                    source: .book(state.books[index])
                 )
 
                 return .none

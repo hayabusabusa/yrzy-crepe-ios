@@ -69,6 +69,18 @@ extension FirestoreClient: DependencyKey {
                 .getDocument()
 
             return snapshot.exists
+        } addFavoriteBook: { request in
+            let collectionPath = Path.favorites(for: request.userID).collection
+            var encoded = try encoder.encode(request.favoriteBook)
+            encoded.removeValue(forKey: "id")
+
+            guard let id = request.favoriteBook.id else {
+                fatalError("`FavoriteBook.id` is nil")
+            }
+
+            try await db.collection(collectionPath)
+                .document(id)
+                .setData(encoded)
         } fetchLatestFavoriteBooks: { request in
             let collectionPath = Path.favorites(for: request.userID).collection
             let snapshot = try await db.collection(collectionPath)
@@ -83,6 +95,17 @@ extension FirestoreClient: DependencyKey {
                     decoded.id = document.documentID
                     return decoded
                 }
+        } favoriteBookExists: { request in
+            guard let bookID = request.bookID else {
+                fatalError("`Book.id` is nil.")
+            }
+
+            let collectionPath = Path.favorites(for: request.userID).collection
+            let snapshot = try await db.collection(collectionPath)
+                .document(bookID)
+                .getDocument()
+
+            return snapshot.exists
         } fetchAdvertisements: {
             let collectionPath = Path.advertisements.collection
             let snapshot = try await db.collection(collectionPath)
@@ -100,9 +123,13 @@ extension FirestoreClient: DependencyKey {
                 .document(user.id)
                 .setData(encoded)
         } removeFavoriteBook: { request in
+            guard let bookID = request.bookID else {
+                fatalError("`Book.id` is nil.")
+            }
+
             let collectionPath = Path.favorites(for: request.userID).collection
             try await db.collection(collectionPath)
-                .document(request.documentID)
+                .document(bookID)
                 .delete()
         }
     }

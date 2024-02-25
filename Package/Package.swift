@@ -20,6 +20,9 @@ let package = Package(
             name: "BookshelfFeature",
             targets: ["BookshelfFeature"]),
         .library(
+            name: "FavoritesFeature",
+            targets: ["FavoritesFeature"]),
+        .library(
             name: "FirebaseClient",
             targets: ["FirebaseClient"]),
         .library(
@@ -38,8 +41,14 @@ let package = Package(
             name: "RandomDateGenerator",
             targets: ["RandomDateGenerator"]),
         .library(
+            name: "SearchFeature",
+            targets: ["SearchFeature"]),
+        .library(
             name: "SharedExtensions",
             targets: ["SharedExtensions"]),
+        .library(
+            name: "SharedViews",
+            targets: ["SharedViews"]),
         .library(
             name: "ViewerFeature",
             targets: ["ViewerFeature"]),
@@ -120,14 +129,28 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke")
             ]),
         .target(
+            name: "FavoritesFeature",
+            dependencies: [
+                "AuthClient",
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "SharedViews",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
+        .target(
             name: "GalleryFeature",
             dependencies: [
                 "AuthClient",
                 "BookshelfFeature",
+                "FavoritesFeature",
                 "FirestoreClient",
                 "RandomDateGenerator",
                 "SharedModels",
                 "SharedExtensions",
+                "SharedViews",
                 "ViewerFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
@@ -138,14 +161,28 @@ let package = Package(
                 .product(name: "Dependencies", package: "swift-dependencies"),
             ]),
         .target(
-            name: "SharedModels"),
-        .target(
-            name: "SharedExtensions"),
-        .target(
-            name: "ViewerFeature",
+            name: "SearchFeature",
             dependencies: [
                 "FirestoreClient",
                 "SharedModels",
+                "SharedExtensions",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
+        .target(
+            name: "SharedExtensions"),
+        .target(
+            name: "SharedModels"),
+        .target(
+            name: "SharedViews"),
+        .target(
+            name: "ViewerFeature",
+            dependencies: [
+                "AuthClient",
+                "FirestoreClient",
+                "SharedModels",
+                "SharedViews",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
                 .product(name: "SwiftUIPager", package: "SwiftUIPager"),

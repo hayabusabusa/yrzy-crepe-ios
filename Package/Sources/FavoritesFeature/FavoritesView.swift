@@ -73,10 +73,11 @@ public struct FavoritesFeature {
         Reduce { state, action in
             switch action {
             case let .bookTapped(index):
-                print(state.books[index])
-//                state.destination = .viewer(
-//                    ViewerFeature.State(book: <#T##Book#>)
-//                )
+                state.destination = .viewer(
+                    ViewerFeature.State(
+                        source: .favoriteBook(state.books[index])
+                    )
+                )
 
                 return .none
             case .closeButtonTapped:
@@ -164,6 +165,16 @@ public struct FavoritesView: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Color(.systemGray3))
                 })
+            }
+        }
+        .fullScreenCover(
+            store: store.scope(
+                state: \.$destination.viewer,
+                action: \.destination.viewer
+            )
+        ) { store in
+            NavigationStack {
+                ViewerView(store: store)
             }
         }
         .task {

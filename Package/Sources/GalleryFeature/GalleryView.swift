@@ -130,7 +130,7 @@ public struct GalleryFeature {
             case let .latestBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.latestBooks[index]
+                        source: .book(state.latestBooks[index])
                     )
                 )
 
@@ -146,7 +146,7 @@ public struct GalleryFeature {
             case let .lastYearBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.lastYearBooks[index]
+                        source: .book(state.lastYearBooks[index])
                     )
                 )
 
@@ -174,7 +174,7 @@ public struct GalleryFeature {
             case let .randomBookTapped(index):
                 state.destination = .viewer(
                     ViewerFeature.State(
-                        book: state.randomBooks[index]
+                        source: .book(state.randomBooks[index])
                     )
                 )
 

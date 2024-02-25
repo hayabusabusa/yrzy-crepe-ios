@@ -20,6 +20,9 @@ let package = Package(
             name: "BookshelfFeature",
             targets: ["BookshelfFeature"]),
         .library(
+            name: "FavoritesFeature",
+            targets: ["FavoritesFeature"]),
+        .library(
             name: "FirebaseClient",
             targets: ["FirebaseClient"]),
         .library(
@@ -126,10 +129,23 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke")
             ]),
         .target(
+            name: "FavoritesFeature",
+            dependencies: [
+                "AuthClient",
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "SharedViews",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
+        .target(
             name: "GalleryFeature",
             dependencies: [
                 "AuthClient",
                 "BookshelfFeature",
+                "FavoritesFeature",
                 "FirestoreClient",
                 "RandomDateGenerator",
                 "SharedModels",

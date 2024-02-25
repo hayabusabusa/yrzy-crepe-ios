@@ -13,39 +13,41 @@ struct GalleryMenuView: View {
     var favoriteAction: (() -> Void)?
 
     var body: some View {
-        HStack {
-            Spacer()
+        ScrollView(.horizontal) {
+            HStack {
+                ItemView(
+                    imageName: "magnifyingglass",
+                    text: "検索", 
+                    color: .systemMint
+                ) {
+                    searchAction?()
+                }
 
-            ItemView(
-                imageName: "magnifyingglass",
-                text: "検索"
-            ) {
-                searchAction?()
+                Spacer()
+
+                ItemView(
+                    imageName: "heart",
+                    text: "お気に入り",
+                    color: .systemPink
+                ) {
+                    favoriteAction?()
+                }
+
+                Spacer()
+
+                ItemView(
+                    imageName: "doc",
+                    text: "スクレイピング",
+                    color: .systemPurple
+                ) {
+                    scrapingAction?()
+                }
+
+                Spacer()
             }
-            .disabled(true)
-
-            Spacer()
-
-            ItemView(
-                imageName: "doc.badge.plus",
-                text: "スクレイピング"
-            ) {
-                scrapingAction?()
-            }
-            .disabled(true)
-
-            Spacer()
-
-            ItemView(
-                imageName: "star",
-                text: "お気に入り"
-            ) {
-                favoriteAction?()
-            }
-
-            Spacer()
+            .padding(EdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8))
         }
-        .padding(8)
+        .scrollIndicators(.hidden)
     }
 }
 
@@ -53,30 +55,37 @@ extension GalleryMenuView {
     struct ItemView: View {
         var imageName: String
         var text: String
+        var color: UIColor
         var action: (() -> Void)?
+
+        private let size = CGSize(width: 140, height: 60)
 
         var body: some View {
             Button {
                 action?()
             } label: {
-                VStack {
-                    ZStack {
-                        Circle()
-                            .frame(width: 40, height: 40)
-                            .foregroundStyle(Color(.secondarySystemBackground))
-
-                        Image(systemName: imageName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 16, height: 16)
-                    }
+                ZStack {
+                    RoundedRectangle(cornerSize: CGSize(width: 4, height: 4))
+                        .foregroundStyle(Color(color))
 
                     Text(text)
-                        .bold()
                         .font(.caption)
+                        .bold()
+                        .foregroundStyle(Color(.white))
+
+                    Image(systemName: imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 72, height: 72)
+                        .position(x: size.width / 6, y: size.height - 16)
+                        .foregroundStyle(
+                            Color(.white)
+                                .opacity(0.3)
+                        )
                 }
+                .clipped()
             }
-            .frame(width: 80)
+            .frame(width: size.width, height: size.height)
         }
     }
 }

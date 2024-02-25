@@ -154,7 +154,6 @@ public struct FavoritesView: View {
                 }
             }
         }
-        .padding(.top)
         .navigationTitle("お気に入り一覧")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

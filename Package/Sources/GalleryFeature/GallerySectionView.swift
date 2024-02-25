@@ -14,18 +14,49 @@ struct GallerySectionView: View {
         GridItem(.flexible())
     ]
 
+    var title: String
+    var moreButtonTitle: String
     var configurations: [ItemView.Configuration]
     var action: ((Int) -> Void)?
+    var moreAction: (() -> Void)?
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 8) {
-            ForEach(Array(configurations.enumerated()), id: \.offset) { index, configuration in
-                ItemView(configuration: configuration) {
-                    action?(index)
+        VStack(spacing: 24) {
+            Text(title)
+                .font(.title3)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            LazyVGrid(columns: columns, spacing: 8) {
+                ForEach(Array(configurations.enumerated()), id: \.offset) { index, configuration in
+                    ItemView(configuration: configuration) {
+                        action?(index)
+                    }
                 }
             }
+
+            Rectangle()
+                .frame(height: 1)
+                .foregroundStyle(Color(.systemGray5))
+
+            Button(action: {
+                moreAction?()
+            }, label: {
+                HStack(spacing: 4) {
+                    Text(moreButtonTitle)
+                        .font(.caption)
+
+                    Image(systemName: "chevron.right")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 12, height: 12)
+
+                    Spacer()
+                }
+            })
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding([.trailing, .leading], 8)
+        .padding(EdgeInsets(top: 32, leading: 16, bottom: 28, trailing: 16))
     }
 }
 
@@ -80,6 +111,8 @@ extension GallerySectionView.ItemView {
 #if DEBUG
 #Preview {
     GallerySectionView(
+        title: "最近追加された作品",
+        moreButtonTitle: "もっとみる",
         configurations: [
             .init(
                 id: UUID().uuidString,

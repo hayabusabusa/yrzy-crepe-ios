@@ -45,7 +45,7 @@ struct GalleryMenuView: View {
 
                 Spacer()
             }
-            .padding(EdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8))
+            .padding(16)
         }
         .scrollIndicators(.hidden)
     }

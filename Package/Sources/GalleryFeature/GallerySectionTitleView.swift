@@ -22,11 +22,18 @@ struct GallerySectionTitleView: View {
             Button(action: {
                 action()
             }, label: {
-                Text(buttonTitle)
-                    .font(.caption)
+                HStack(spacing: 4) {
+                    Text(buttonTitle)
+                        .font(.caption)
+
+                    Image(systemName: "chevron.right")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 12, height: 12)
+                }
             })
         }
-        .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 8, trailing: 16))
     }
 }
 

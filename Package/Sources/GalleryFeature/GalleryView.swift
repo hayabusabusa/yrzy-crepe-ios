@@ -272,9 +272,15 @@ public struct GalleryView: View {
                                 // TODO
                             }
 
-                            GallerySectionView(
+                            GallerySectionTitleView(
                                 title: "最近追加された作品",
-                                moreButtonTitle: "もっとみる",
+                                buttonTitle: "もっとみる",
+                                action: {
+                                    viewStore.send(.latestBookMoreTapped)
+                                }
+                            )
+
+                            GallerySectionView(
                                 configurations: viewStore.latestBooks.map {
                                     .init(
                                         id: $0.id,
@@ -284,17 +290,20 @@ public struct GalleryView: View {
                                 },
                                 action: { index in
                                     viewStore.send(.latestBookTapped(index))
-                                },
-                                moreAction: {
-                                    viewStore.send(.latestBookMoreTapped)
                                 }
                             )
 
                             let lastYearBooks = viewStore.lastYearBooks
                             if !lastYearBooks.isEmpty {
-                                GallerySectionView(
+                                GallerySectionTitleView(
                                     title: "1年前に追加された作品",
-                                    moreButtonTitle: "もっとみる",
+                                    buttonTitle: "もっとみる",
+                                    action: {
+                                        viewStore.send(.lastYearBookMoreTapped)
+                                    }
+                                )
+
+                                GallerySectionView(
                                     configurations: lastYearBooks.map {
                                         .init(
                                             id: $0.id,
@@ -304,9 +313,6 @@ public struct GalleryView: View {
                                     },
                                     action: { index in
                                         viewStore.send(.lastYearBookTapped(index))
-                                    },
-                                    moreAction: {
-                                        viewStore.send(.lastYearBookMoreTapped)
                                     }
                                 )
                             }

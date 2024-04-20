@@ -41,11 +41,7 @@ extension FirestoreClient: DependencyKey {
                 .getDocuments()
 
             return try snapshot.documents
-                .map { document in
-                    var decoded = try decoder.decode(Book.self, from: document.data())
-                    decoded.id = document.documentID
-                    return decoded
-                }
+                .mapToBooks(with: decoder)
         } fetchCertainDateBooks: { request in
             let collectionPath = Path.books.collection
             let date = request.date.startAndEnd
@@ -57,11 +53,17 @@ extension FirestoreClient: DependencyKey {
                 .getDocuments()
 
             return try snapshot.documents
-                .map { document in
-                    var decoded = try decoder.decode(Book.self, from: document.data())
-                    decoded.id = document.documentID
-                    return decoded
-                }
+                .mapToBooks(with: decoder)
+        } searchBooks: { request in
+            let collectionPath = Path.books.collection
+            let snapshot = try await db.collection(collectionPath)
+                .order(by: "createdAt", descending: true)
+                .start(after: [request.date])
+                .limit(to: 10)
+                .getDocuments()
+
+            return try snapshot.documents
+                .mapToBooks(with: decoder)
         } bookExists: { documentID in
             let collectionPath = Path.books.collection
             let snapshot = try await db.collection(collectionPath)
@@ -144,5 +146,18 @@ private struct Path {
 
     static func favorites(for userID: String) -> Self {
         .init(collection: "public/v1/users/\(userID)/favorites")
+    }
+}
+
+private extension Array where Element == QueryDocumentSnapshot {
+    /// 取得した Firestore のドキュメント一覧を `[Book]` に変換する.
+    /// - Parameter decoder: デコード時に利用する `Firesoter.Decoder`.
+    /// - Returns: 変換された `[Book]`.
+    func mapToBooks(with decoder: Firestore.Decoder) throws -> [Book] {
+        try map { document in
+            var decoded = try decoder.decode(Book.self, from: document.data())
+            decoded.id = document.documentID
+            return decoded
+        }
     }
 }

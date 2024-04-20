@@ -148,6 +148,7 @@ let package = Package(
                 "FavoritesFeature",
                 "FirestoreClient",
                 "RandomDateGenerator",
+                "SearchFeature",
                 "SharedModels",
                 "SharedExtensions",
                 "SharedViews",

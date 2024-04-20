@@ -12,6 +12,7 @@ import FavoritesFeature
 import FirestoreClient
 import NukeUI
 import RandomDateGenerator
+import SearchFeature
 import SharedExtensions
 import SharedModels
 import SwiftUI
@@ -27,12 +28,14 @@ public struct GalleryFeature {
         public enum State: Equatable {
             case bookshelf(BookshelfFeature.State)
             case favorites(FavoritesFeature.State)
+            case search(SearchFeature.State)
             case viewer(ViewerFeature.State)
         }
 
         public enum Action {
             case bookshelf(BookshelfFeature.Action)
             case favorites(FavoritesFeature.Action)
+            case search(SearchFeature.Action)
             case viewer(ViewerFeature.Action)
         }
 
@@ -42,6 +45,9 @@ public struct GalleryFeature {
             }
             Scope(state: \.favorites, action: \.favorites) {
                 FavoritesFeature()
+            }
+            Scope(state: \.search, action: \.search) {
+                SearchFeature()
             }
             Scope(state: \.viewer, action: \.viewer) {
                 ViewerFeature()
@@ -90,6 +96,8 @@ public struct GalleryFeature {
         case randomBookTapped(Int)
         /// 画面に必要な情報が全て返ってきた時の `Action`.
         case response(Result<Response, Error>)
+        /// メニュー内の「検索」をタップした時の `Action`.
+        case searchButtonTapped
         /// 非同期処理を実行するための `Action`.
         case task
     }
@@ -190,6 +198,12 @@ public struct GalleryFeature {
                 state.isLoading = false
 
                 return .none
+            case .searchButtonTapped:
+                state.destination = .search(
+                    SearchFeature.State()
+                )
+
+                return .none
             case .task:
                 state.isLoading = true
 
@@ -279,7 +293,7 @@ public struct GalleryView: View {
                             }
 
                             GalleryMenuView {
-                                // TODO
+                                viewStore.send(.searchButtonTapped)
                             } scrapingAction: {
                                 // TODO
                             } favoriteAction: {
@@ -356,6 +370,16 @@ public struct GalleryView: View {
             ) { store in
                 NavigationStack {
                     FavoritesView(store: store)
+                }
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$destination.search,
+                    action: \.destination.search
+                )
+            ) { store in
+                NavigationStack {
+                    SearchView(store: store)
                 }
             }
             .fullScreenCover(

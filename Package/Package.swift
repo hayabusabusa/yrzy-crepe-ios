@@ -17,6 +17,9 @@ let package = Package(
             name: "AuthClientLive",
             targets: ["AuthClientLive"]),
         .library(
+            name: "BookFeature",
+            targets: ["BookFeature"]),
+        .library(
             name: "BookshelfFeature",
             targets: ["BookshelfFeature"]),
         .library(
@@ -125,6 +128,14 @@ let package = Package(
                 "SharedModels",
                 "SharedExtensions",
                 "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
+            ]),
+        .target(
+            name: "BookFeature",
+            dependencies: [
+                "SharedModels",
+                "SharedExtensions",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke")
             ]),

@@ -164,18 +164,8 @@ public struct SearchFeature {
                 state.tokens = IdentifiedArrayOf(uniqueElements: [token])
                 state.suggestedTokens = []
 
-                return .run { [selectedDate = state.selectedDate] send in
-                    await send(
-                        .response(
-                            Result {
-                                try await self.search(
-                                    with: selectedDate,
-                                    author: token.type == .author ? token.title : nil
-                                )
-                            }
-                        )
-                    )
-                }
+                // ここで検索はされないが、テキストを空文字にしたことで `textChanged` が発火するため検索が行われる.
+                return .none
             case let .textChanged(text):
                 state.text = text
 
@@ -294,6 +284,13 @@ public struct SearchView: View {
                                 title: enumerated.element.title,
                                 tokenType: enumerated.element.type
                             ) {
+                                // トークンタップ後に検索が行われるがキーボードが閉じられないのでワークアラウンドとして UIKit を利用する.
+                                UIApplication.shared.sendAction(
+                                    #selector(UIResponder.resignFirstResponder),
+                                    to: nil,
+                                    from: nil,
+                                    for: nil
+                                )
                                 viewStore.send(.suggestedTokenTapped(enumerated.offset))
                             }
                         }

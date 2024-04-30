@@ -33,8 +33,6 @@ public extension SearchToken {
         case author
         /// 日付検索.
         case date
-        /// タグ検索.
-        case tags
     }
 }
 
@@ -47,14 +45,6 @@ extension SearchToken {
             SearchToken(
                 title: text,
                 type: .author
-            ),
-            SearchToken(
-                title: text,
-                type: .tags
-            ),
-            SearchToken(
-                title: "日付",
-                type: .date
             )
         ]
     }

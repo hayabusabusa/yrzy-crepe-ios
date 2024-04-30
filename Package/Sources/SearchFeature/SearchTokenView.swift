@@ -32,8 +32,6 @@ private extension SearchToken.TokenType {
             "person"
         case .date:
             "calendar"
-        case .tags:
-            "tag"
         }
     }
 }

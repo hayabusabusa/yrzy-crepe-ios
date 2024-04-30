@@ -167,6 +167,7 @@ let package = Package(
                 "FirestoreClient",
                 "SharedModels",
                 "SharedExtensions",
+                "SharedViews",
                 "ViewerFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
@@ -176,7 +177,11 @@ let package = Package(
         .target(
             name: "SharedModels"),
         .target(
-            name: "SharedViews"),
+            name: "SharedViews",
+            dependencies: [
+                .product(name: "NukeUI", package: "Nuke"),
+            ]
+        ),
         .target(
             name: "ViewerFeature",
             dependencies: [

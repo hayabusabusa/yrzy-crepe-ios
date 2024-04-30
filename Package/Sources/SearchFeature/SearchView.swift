@@ -6,45 +6,73 @@
 //
 
 import ComposableArchitecture
+import FirestoreClient
 import SharedExtensions
 import SharedModels
+import SharedViews
 import SwiftUI
 
 // MARK: - Reducer
 
 @Reducer
 public struct SearchFeature {
+    @Reducer
+    public struct Destination {
+        public enum State: Equatable {
+            case form(SearchForm.State)
+        }
+
+        public enum Action {
+            case form(SearchForm.Action)
+        }
+
+        public var body: some ReducerOf<Self> {
+            Scope(state: \.form, action: \.form) {
+                SearchForm()
+            }
+        }
+
+        public init() {}
+    }
+
     public struct State: Equatable {
         public var books = IdentifiedArrayOf<Book>()
         public var text = ""
         public var selectedDate = Date()
         public var suggestedTokens = IdentifiedArrayOf<SearchToken>()
         public var tokens = IdentifiedArrayOf<SearchToken>()
+        @PresentationState public var destination: Destination.State?
 
         public init(
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             text: String = "",
             selectedDate: Date = Date(),
             suggestedTokens: IdentifiedArrayOf<SearchToken> = IdentifiedArrayOf<SearchToken>(),
-            tokens: IdentifiedArrayOf<SearchToken> = IdentifiedArrayOf<SearchToken>()
+            tokens: IdentifiedArrayOf<SearchToken> = IdentifiedArrayOf<SearchToken>(),
+            destination: Destination.State? = nil
         ) {
             self.books = books
             self.text = text
             self.selectedDate = selectedDate
             self.suggestedTokens = suggestedTokens
             self.tokens = tokens
+            self.destination = destination
         }
     }
 
     public enum Action {
         /// 閉じるボタンタップ時の `Action`.
         case closeButtonTapped
+        /// 画面遷移用の `Action`.
+        case destination(PresentationAction<Destination.Action>)
+        /// 画面下部のツールバーボタンがタップされた時の `Action`.
+        case filterButtonTapped
         /// テキスト編集が完了した時の `Action`.
         case onSubmit
         /// 検索処理完了時の `Action`.
         case response(Result<[Book], Error>)
-        /// `DatePicker` で選択された日付が変更された時の `Action`.
-        case selectedDateChanged(Date)
+        /// テキストフィール横のキャンセルボタンタップ時の `Action`.
+        case searchCanceled
         /// サジェストされたトークンがタップされた時の `Action`.
         case suggestedTokenTapped(Int)
         /// テキストフィールドの文字が変更された時の `Action`.
@@ -54,6 +82,7 @@ public struct SearchFeature {
     }
 
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.firestoreClient) var firestoreClient
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -63,9 +92,56 @@ public struct SearchFeature {
                 return .run { _ in
                     await self.dismiss()
                 }
-            case .onSubmit:
+            case let .destination(.presented(.form(.delegate(.confirmed(setting))))):
+                // 日付の内時間を削った状態にする
+                let (date, _) = setting.date.startAndEnd
+
+                if state.selectedDate != date {
+                    state.selectedDate = date
+                }
+
+                return .run { [state] send in
+                    let selectedToken = state.tokens.first
+                    await send(
+                        .response(
+                            Result {
+                                try await self.search(
+                                    with: date,
+                                    title: state.text,
+                                    author: selectedToken?.type == .author ? selectedToken?.title : nil
+                                )
+                            }
+                        )
+                    )
+                }
+            case .destination:
 
                 return .none
+            case .filterButtonTapped:
+                state.destination = .form(
+                    SearchForm.State(
+                        selectedDate: state.selectedDate
+                    )
+                )
+
+                return .none
+            case .onSubmit:
+                state.suggestedTokens = []
+
+                return .run { [state] send in
+                    let selectedToken = state.tokens.first
+                    await send(
+                        .response(
+                            Result {
+                                try await self.search(
+                                    with: state.selectedDate,
+                                    title: state.text,
+                                    author: selectedToken?.type == .author ? selectedToken?.title : nil
+                                )
+                            }
+                        )
+                    )
+                }
             case let .response(.success(books)):
                 state.books = IdentifiedArrayOf(uniqueElements: books)
 
@@ -75,27 +151,30 @@ public struct SearchFeature {
                 print(error)
 
                 return .none
+            case .searchCanceled:
+                state.books = []
+
+                return .none
             case let .suggestedTokenTapped(index):
                 // トークン選択後のテキストをクリアするために必要.
                 state.text = ""
-                state.tokens = IdentifiedArrayOf(uniqueElements: [state.suggestedTokens[index]])
+
+                let token = state.suggestedTokens[index]
+                state.tokens = IdentifiedArrayOf(uniqueElements: [token])
                 state.suggestedTokens = []
 
-                return .none
-            case let .selectedDateChanged(date):
-                state.selectedDate = date
-                state.text = ""
-                state.tokens = IdentifiedArrayOf(
-                    uniqueElements: [
-                        SearchToken(
-                            title: "日付: \(date.string(for: .short))",
-                            type: .date
+                return .run { [selectedDate = state.selectedDate] send in
+                    await send(
+                        .response(
+                            Result {
+                                try await self.search(
+                                    with: selectedDate,
+                                    author: token.type == .author ? token.title : nil
+                                )
+                            }
                         )
-                    ]
-                )
-                state.suggestedTokens = []
-
-                return .none
+                    )
+                }
             case let .textChanged(text):
                 state.text = text
 
@@ -103,15 +182,8 @@ public struct SearchFeature {
                     state.suggestedTokens = IdentifiedArrayOf(
                         uniqueElements: SearchToken.presets(with: text)
                     )
-                } else if state.tokens.isEmpty {
-                    state.suggestedTokens = IdentifiedArrayOf(
-                        uniqueElements: [
-                            SearchToken(
-                                title: "",
-                                type: .date
-                            )
-                        ]
-                    )
+                } else {
+                    state.suggestedTokens = []
                 }
 
                 return .none
@@ -121,9 +193,29 @@ public struct SearchFeature {
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination) {
+            Destination()
+        }
     }
 
     public init() {}
+}
+
+private extension SearchFeature {
+    func search(
+        with date: Date,
+        title: String? = nil,
+        author: String? = nil
+    ) async throws -> [Book] {
+        // テキストフィールドに空文字が入る場合は無視する.
+        try await firestoreClient.searchBooks(
+            FirestoreClient.SearchBooksRequest(
+                date: date,
+                title: title?.isEmpty == true ? nil : title,
+                author: author
+            )
+        )
+    }
 }
 
 // MARK: - View
@@ -133,13 +225,28 @@ public struct SearchView: View {
 
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView {
-                LazyVStack {
-                    ForEach(
-                        Array(viewStore.state.books.enumerated()),
-                        id: \.offset
-                    ) { enumerated in
-                        Text(enumerated.element.title)
+            VStack(spacing: 0) {
+                SearchCancellableView { isSearching in
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(
+                                Array(viewStore.state.books.enumerated()),
+                                id: \.offset
+                            ) { enumerated in
+                                LargeThumbnailView(
+                                    configuration: LargeThumbnailView.Configuration(
+                                        title: enumerated.element.title,
+                                        imageURL: enumerated.element.thumbnailURL,
+                                        createdAt: enumerated.element.createdAt.string(for: .medium, timeStyle: .short)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    .onChange(of: isSearching) { newValue in
+                        if !newValue {
+                            viewStore.send(.searchCanceled)
+                        }
                     }
                 }
             }
@@ -152,6 +259,15 @@ public struct SearchView: View {
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(Color(.systemGray3))
+                    })
+                }
+                ToolbarItemGroup(placement: .bottomBar) {
+                    // ボタンを右端に配置するための `Spacer`.
+                    Spacer()
+                    Button(action: {
+                        viewStore.send(.filterButtonTapped)
+                    }, label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
                     })
                 }
             }
@@ -173,25 +289,28 @@ public struct SearchView: View {
                             Array(viewStore.suggestedTokens.enumerated()),
                             id: \.offset
                         ) { enumerated in
-                            // `DatePicker` 表示用の View と分ける.
-                            if case .date = enumerated.element.type {
-                                SearchTokenDateView(
-                                    selection: viewStore.binding(get: \.selectedDate, send: { .selectedDateChanged($0) })
-                                )
-                            } else {
-                                SearchTokenView(
-                                    title: enumerated.element.title,
-                                    tokenType: enumerated.element.type
-                                ) {
-                                    viewStore.send(.suggestedTokenTapped(enumerated.offset))
-                                }
+                            SearchTokenView(
+                                title: enumerated.element.title,
+                                tokenType: enumerated.element.type
+                            ) {
+                                viewStore.send(.suggestedTokenTapped(enumerated.offset))
                             }
                         }
                     }
                 }
             }
-            .onSubmit {
+            .onSubmit(of: .search) {
                 viewStore.send(.onSubmit)
+            }
+            .sheet(
+                store: store.scope(
+                    state: \.$destination.form,
+                    action: \.destination.form
+                )
+            ) { store in
+                NavigationStack {
+                    SearchFormView(store: store)
+                }
             }
         }
     }

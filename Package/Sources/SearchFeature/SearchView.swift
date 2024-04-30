@@ -11,6 +11,7 @@ import SharedExtensions
 import SharedModels
 import SharedViews
 import SwiftUI
+import ViewerFeature
 
 // MARK: - Reducer
 
@@ -21,15 +22,20 @@ public struct SearchFeature {
     public struct Destination {
         public enum State: Equatable {
             case form(SearchForm.State)
+            case viewer(ViewerFeature.State)
         }
 
         public enum Action {
             case form(SearchForm.Action)
+            case viewer(ViewerFeature.Action)
         }
 
         public var body: some ReducerOf<Self> {
             Scope(state: \.form, action: \.form) {
                 SearchForm()
+            }
+            Scope(state: \.viewer, action: \.viewer) {
+                ViewerFeature()
             }
         }
 
@@ -68,6 +74,8 @@ public struct SearchFeature {
     }
 
     public enum Action {
+        /// 一覧の本タップ時の `Action`.
+        case bookTapped(Int)
         /// 閉じるボタンタップ時の `Action`.
         case closeButtonTapped
         /// 画面遷移用の `Action`.
@@ -98,6 +106,14 @@ public struct SearchFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .bookTapped(index):
+                state.destination = .viewer(
+                    ViewerFeature.State(
+                        source: .book(state.books[index])
+                    )
+                )
+                
+                return .none
             case .closeButtonTapped:
 
                 return .run { _ in
@@ -312,7 +328,9 @@ public struct SearchView: View {
                                         imageURL: enumerated.element.thumbnailURL,
                                         createdAt: enumerated.element.createdAt.string(for: .medium, timeStyle: .short)
                                     )
-                                )
+                                ) {
+                                    viewStore.send(.bookTapped(enumerated.offset))
+                                }
                                 .onAppear {
                                     viewStore.send(.onAppearScrollViewContent(enumerated.offset))
                                 }
@@ -393,6 +411,16 @@ public struct SearchView: View {
             ) { store in
                 NavigationStack {
                     SearchFormView(store: store)
+                }
+            }
+            .fullScreenCover(
+                store: store.scope(
+                    state: \.$destination.viewer,
+                    action: \.destination.viewer
+                )
+            ) { store in
+                NavigationStack {
+                    ViewerView(store: store)
                 }
             }
         }

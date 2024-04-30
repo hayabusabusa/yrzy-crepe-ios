@@ -56,12 +56,26 @@ extension FirestoreClient: DependencyKey {
                 .mapToBooks(with: decoder)
         } searchBooks: { request in
             let collectionPath = Path.books.collection
-            let snapshot = try await db.collection(collectionPath)
-                .order(by: "createdAt", descending: true)
+
+            var query: Query?
+            if let title = request.title {
+                query = db.collection(collectionPath)
+                    .whereField("title", isGreaterThanOrEqualTo: title)
+            }
+
+            if let author = request.author {
+                query = query?.whereField("author", isEqualTo: author)
+                    ?? db.collection(collectionPath).whereField("author", isEqualTo: author)
+            }
+
+            let ordered = query?.order(by: "createdAt", descending: request.isDescending)
+                .start(after: [request.date])
+                .limit(to: 10) ?? db.collection(collectionPath)
+                .order(by: "createdAt", descending: request.isDescending)
                 .start(after: [request.date])
                 .limit(to: 10)
-                .getDocuments()
 
+            let snapshot = try await ordered.getDocuments()
             return try snapshot.documents
                 .mapToBooks(with: decoder)
         } bookExists: { documentID in

@@ -110,15 +110,19 @@ public extension FirestoreClient {
         public let title: String?
         /// 検索する作品の著者名.
         public let author: String?
+        /// 降順にするかどうか
+        public let isDescending: Bool
 
         public init(
             date: Date,
             title: String?,
-            author: String?
+            author: String?,
+            isDescending: Bool = true
         ) {
             self.date = date
             self.title = title
             self.author = author
+            self.isDescending = isDescending
         }
     }
 

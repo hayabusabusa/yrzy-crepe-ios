@@ -39,6 +39,7 @@ public struct SearchFeature {
     public struct State: Equatable {
         public var books = IdentifiedArrayOf<Book>()
         public var isLoading = false
+        public var isPaginationLoading = false
         public var text = ""
         public var selectedDate = Date()
         public var suggestedTokens = IdentifiedArrayOf<SearchToken>()
@@ -48,6 +49,7 @@ public struct SearchFeature {
         public init(
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
             isLoading: Bool = false,
+            isPaginationLoading: Bool = false,
             text: String = "",
             selectedDate: Date = Date(),
             suggestedTokens: IdentifiedArrayOf<SearchToken> = IdentifiedArrayOf<SearchToken>(),
@@ -56,6 +58,7 @@ public struct SearchFeature {
         ) {
             self.books = books
             self.isLoading = isLoading
+            self.isPaginationLoading = isPaginationLoading
             self.text = text
             self.selectedDate = selectedDate
             self.suggestedTokens = suggestedTokens
@@ -71,8 +74,12 @@ public struct SearchFeature {
         case destination(PresentationAction<Destination.Action>)
         /// 画面下部のツールバーボタンがタップされた時の `Action`.
         case filterButtonTapped
+        /// `ScrollView` 内のアイテムが表示された時の `Action`.
+        case onAppearScrollViewContent(Int)
         /// テキスト編集が完了した時の `Action`.
         case onSubmit
+        /// 追加読み込みの非同期処理が完了した後の `Action`.
+        case paginationResponse(Result<[Book], Error>)
         /// 検索処理完了時の `Action`.
         case response(Result<[Book], Error>)
         /// テキストフィール横のキャンセルボタンタップ時の `Action`.
@@ -130,6 +137,37 @@ public struct SearchFeature {
                 )
 
                 return .none
+            case let .onAppearScrollViewContent(offset):
+                // 既に追加ロード中の場合は何もしない.
+                guard !state.isPaginationLoading else {
+                    return .none
+                }
+
+                let threshold = 1
+                let scrolledOffset = (state.books.count - 1) - offset
+                let needsPagination = scrolledOffset <= threshold
+
+                // 追加ロードが発生する位置までスクロールされていない場合は何もしない.
+                guard needsPagination else {
+                    return .none
+                }
+
+                state.isPaginationLoading = true
+                return .run { [state] send in
+                    let selectedToken = state.tokens.first
+
+                    await send(
+                        .paginationResponse(
+                            Result {
+                                try await self.fetchNextBooks(
+                                    lastDate: state.books.last?.createdAt ?? Date(),
+                                    title: state.text,
+                                    author: selectedToken?.type == .author ? selectedToken?.title : nil
+                                )
+                            }
+                        )
+                    )
+                }
             case .onSubmit:
                 state.suggestedTokens = []
                 state.isLoading = true
@@ -148,6 +186,16 @@ public struct SearchFeature {
                         )
                     )
                 }
+            case let .paginationResponse(.success(books)):
+                state.books.append(contentsOf: books)
+                state.isPaginationLoading = false
+
+                return .none
+            case let .paginationResponse(.failure(error)):
+                state.isPaginationLoading = false
+                print(error)
+
+                return .none
             case let .response(.success(books)):
                 state.books = IdentifiedArrayOf(uniqueElements: books)
                 state.isLoading = false
@@ -200,6 +248,12 @@ public struct SearchFeature {
 }
 
 private extension SearchFeature {
+    /// 作品の検索を行う.
+    /// - Parameters:
+    ///   - date: 日付順に並べる際に利用する日付.
+    ///   - title: 作品のタイトル( 完全一致しないとダメなので Optional ).
+    ///   - author: 作者( 完全一致しないとダメなので Optional ).
+    /// - Returns: 作品一覧.
     func search(
         with date: Date,
         title: String? = nil,
@@ -209,6 +263,25 @@ private extension SearchFeature {
         try await firestoreClient.searchBooks(
             FirestoreClient.SearchBooksRequest(
                 date: date,
+                title: title?.isEmpty == true ? nil : title,
+                author: author
+            )
+        )
+    }
+
+    /// 追加の本一覧を取得する.
+    /// - Parameters:
+    ///   - lastDate: 一覧に表示している本一覧 最後の要素の日付.
+    /// - Returns: 本一覧.
+    func fetchNextBooks(
+        lastDate: Date,
+        title: String? = nil,
+        author: String? = nil
+    ) async throws -> [Book] {
+        // テキストフィールドに空文字が入る場合は無視する.
+        try await firestoreClient.searchBooks(
+            FirestoreClient.SearchBooksRequest(
+                date: lastDate,
                 title: title?.isEmpty == true ? nil : title,
                 author: author
             )
@@ -240,6 +313,9 @@ public struct SearchView: View {
                                         createdAt: enumerated.element.createdAt.string(for: .medium, timeStyle: .short)
                                     )
                                 )
+                                .onAppear {
+                                    viewStore.send(.onAppearScrollViewContent(enumerated.offset))
+                                }
                             }
                         }
                     }

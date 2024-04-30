@@ -113,7 +113,7 @@ public struct SearchFormView: View {
                     Button(action: {
                         viewStore.send(.confirmButtonTapped)
                     }, label: {
-                        Text("適応")
+                        Text("検索")
                             .bold()
                     })
                 }

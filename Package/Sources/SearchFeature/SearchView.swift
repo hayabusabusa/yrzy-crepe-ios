@@ -38,6 +38,7 @@ public struct SearchFeature {
 
     public struct State: Equatable {
         public var books = IdentifiedArrayOf<Book>()
+        public var isLoading = false
         public var text = ""
         public var selectedDate = Date()
         public var suggestedTokens = IdentifiedArrayOf<SearchToken>()
@@ -46,6 +47,7 @@ public struct SearchFeature {
 
         public init(
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
+            isLoading: Bool = false,
             text: String = "",
             selectedDate: Date = Date(),
             suggestedTokens: IdentifiedArrayOf<SearchToken> = IdentifiedArrayOf<SearchToken>(),
@@ -53,6 +55,7 @@ public struct SearchFeature {
             destination: Destination.State? = nil
         ) {
             self.books = books
+            self.isLoading = isLoading
             self.text = text
             self.selectedDate = selectedDate
             self.suggestedTokens = suggestedTokens
@@ -100,6 +103,7 @@ public struct SearchFeature {
                 if state.selectedDate != date {
                     state.selectedDate = date
                 }
+                state.isLoading = true
 
                 return .run { [state] send in
                     let selectedToken = state.tokens.first
@@ -128,6 +132,7 @@ public struct SearchFeature {
                 return .none
             case .onSubmit:
                 state.suggestedTokens = []
+                state.isLoading = true
 
                 return .run { [state] send in
                     let selectedToken = state.tokens.first
@@ -145,10 +150,12 @@ public struct SearchFeature {
                 }
             case let .response(.success(books)):
                 state.books = IdentifiedArrayOf(uniqueElements: books)
+                state.isLoading = false
 
                 return .none
             case let .response(.failure(error)):
                 state.books = []
+                state.isLoading = false
                 print(error)
 
                 return .none
@@ -216,9 +223,11 @@ public struct SearchView: View {
 
     public var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
-                SearchCancellableView { isSearching in
-                    ScrollView {
+            SearchCancellableView { isSearching in
+                ScrollView {
+                    if viewStore.isLoading {
+                        ProgressView()
+                    } else {
                         LazyVStack {
                             ForEach(
                                 Array(viewStore.state.books.enumerated()),
@@ -234,10 +243,10 @@ public struct SearchView: View {
                             }
                         }
                     }
-                    .onChange(of: isSearching) { newValue in
-                        if !newValue {
-                            viewStore.send(.searchCanceled)
-                        }
+                }
+                .onChange(of: isSearching) { newValue in
+                    if !newValue {
+                        viewStore.send(.searchCanceled)
                     }
                 }
             }

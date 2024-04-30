@@ -26,12 +26,17 @@ public struct SearchForm {
     }
 
     public enum Action: BindableAction {
+        /// バインディング用の `Action`.
         case binding(BindingAction<State>)
+        /// キャンセルボタンタップ時の `Action`.
         case cancelButtonTapped
+        /// 適応ボタンタップ時の `Action`.
         case confirmButtonTapped
+        /// 親画面にイベントを通知するための `Action`.
         case delegate(Delegate)
 
         public enum Delegate {
+            /// 適応ボタンタップ後画面を閉じる際に送るデリゲート.
             case confirmed(SearchSetting)
         }
     }

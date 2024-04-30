@@ -16,6 +16,7 @@ import SwiftUI
 
 @Reducer
 public struct SearchFeature {
+    /// 画面遷移用の子 `Reducer`.
     @Reducer
     public struct Destination {
         public enum State: Equatable {

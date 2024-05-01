@@ -51,3 +51,10 @@ extension ClipboardClient: DependencyKey {
         }
     }
 }
+
+extension DependencyValues {
+    public var clipboardClient: ClipboardClient {
+        get { self[ClipboardClient.self] }
+        set { self[ClipboardClient.self] = newValue }
+    }
+}

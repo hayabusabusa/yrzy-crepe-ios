@@ -217,6 +217,11 @@ let package = Package(
 
         // MARK: Tests
         .testTarget(
+            name: "BookshelfFeatureTests",
+            dependencies: [
+                "BookshelfFeature",
+            ]),
+        .testTarget(
             name: "ClipboardClientTests",
             dependencies: [
                 "ClipboardClient",

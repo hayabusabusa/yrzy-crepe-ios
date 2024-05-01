@@ -20,20 +20,17 @@ public struct BookshelfFeature {
     public struct State: Equatable {
         public let collection: Collection
         public var books = IdentifiedArrayOf<Book>()
-        public var isLoading = false
         public var isPaginationLoading = false
         @PresentationState public var viewer: ViewerFeature.State?
 
         public init(
             collection: Collection,
             books: IdentifiedArrayOf<Book> = IdentifiedArrayOf<Book>(),
-            isLoading: Bool = false,
             isPaginationLoading: Bool = false,
             viewer: ViewerFeature.State? = nil
         ) {
             self.collection = collection
             self.books = books
-            self.isLoading = isLoading
             self.isPaginationLoading = isPaginationLoading
             self.viewer = viewer
         }

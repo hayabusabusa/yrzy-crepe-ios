@@ -20,6 +20,11 @@
           "containerPath" : "container:..\/Package",
           "identifier" : "SharedExtensionsTests",
           "name" : "SharedExtensionsTests"
+        },
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "BookshelfFeatureTests",
+          "name" : "BookshelfFeatureTests"
         }
       ]
     },
@@ -30,6 +35,13 @@
     }
   },
   "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "BookshelfFeatureTests",
+        "name" : "BookshelfFeatureTests"
+      }
+    },
     {
       "target" : {
         "containerPath" : "container:..\/Package",

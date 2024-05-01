@@ -23,6 +23,9 @@ let package = Package(
             name: "BookshelfFeature",
             targets: ["BookshelfFeature"]),
         .library(
+            name: "ClipboardClient",
+            targets: ["ClipboardClient"]),
+        .library(
             name: "FavoritesFeature",
             targets: ["FavoritesFeature"]),
         .library(
@@ -95,6 +98,41 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ]),
         .target(
+            name: "BookshelfFeature",
+            dependencies: [
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
+            ]),
+        .target(
+            name: "BookFeature",
+            dependencies: [
+                "SharedModels",
+                "SharedExtensions",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
+            ]),
+        .target(
+            name: "ClipboardClient",
+            dependencies: [
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "FavoritesFeature",
+            dependencies: [
+                "AuthClient",
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "SharedViews",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
+        .target(
             name: "FirebaseClient",
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -120,36 +158,6 @@ let package = Package(
                 "SharedExtensions",
                 .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
-            ]),
-        .target(
-            name: "BookshelfFeature",
-            dependencies: [
-                "FirestoreClient",
-                "SharedModels",
-                "SharedExtensions",
-                "ViewerFeature",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "NukeUI", package: "Nuke")
-            ]),
-        .target(
-            name: "BookFeature",
-            dependencies: [
-                "SharedModels",
-                "SharedExtensions",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "NukeUI", package: "Nuke")
-            ]),
-        .target(
-            name: "FavoritesFeature",
-            dependencies: [
-                "AuthClient",
-                "FirestoreClient",
-                "SharedModels",
-                "SharedExtensions",
-                "SharedViews",
-                "ViewerFeature",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "NukeUI", package: "Nuke"),
             ]),
         .target(
             name: "GalleryFeature",

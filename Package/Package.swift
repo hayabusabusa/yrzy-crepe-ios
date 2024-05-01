@@ -110,6 +110,7 @@ let package = Package(
         .target(
             name: "BookFeature",
             dependencies: [
+                "ClipboardClient",
                 "SharedModels",
                 "SharedExtensions",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

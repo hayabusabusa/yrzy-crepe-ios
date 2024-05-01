@@ -5,6 +5,7 @@
 //  Created by Shunya Yamada on 2024/05/01.
 //
 
+import ClipboardClient
 import ComposableArchitecture
 import SharedExtensions
 import SharedModels
@@ -49,6 +50,7 @@ public struct BookFeature {
         }
     }
 
+    @Dependency(\.clipboardClient) var clipboardClient
     @Dependency(\.dismiss) var dismiss
 
     public var body: some ReducerOf<Self> {
@@ -63,7 +65,12 @@ public struct BookFeature {
                 return .run { _ in
                     await self.dismiss()
                 }
+            case .confirmationDialog(.presented(.copyAuthor)):
+                clipboardClient.setString(state.book.author ?? "")
+
+                return .none
             case .confirmationDialog(.presented(.copyURL)):
+                clipboardClient.setString(state.book.url)
 
                 return .none
             case .confirmationDialog:

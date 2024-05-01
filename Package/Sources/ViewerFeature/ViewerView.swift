@@ -6,6 +6,7 @@
 //
 
 import AuthClient
+import BookFeature
 import ComposableArchitecture
 import FirestoreClient
 import NukeUI
@@ -17,6 +18,23 @@ import SwiftUIPager
 
 @Reducer
 public struct ViewerFeature {
+    @Reducer
+    public struct Destination {
+        public enum State: Equatable {
+            case book(BookFeature.State)
+        }
+
+        public enum Action {
+            case book(BookFeature.Action)
+        }
+
+        public var body: some ReducerOf<Self> {
+            Scope(state: \.book, action: \.book) {
+                BookFeature()
+            }
+        }
+    }
+
     public struct State: Equatable {
         /// ビューワーで表示するソース.
         var source: Source
@@ -32,12 +50,15 @@ public struct ViewerFeature {
         var isFavoriteLoading = false
         /// ビューワーに表示する作品を読み込む処理が実行中かどうか.
         var isLoading = false
+        /// 画面遷移用の `State`.
+        @PresentationState var destination: Destination.State?
 
         public init(
             source: Source,
             isFavorite: Bool = false,
             isFavoriteLoading: Bool = false,
-            isLoading: Bool = false
+            isLoading: Bool = false,
+            destination: Destination.State? = nil
         ) {
             self.source = source
             // 既に取得済みの本を表示する場合でも画面表示後にデータを入れるので一旦 `nil` を入れておく.
@@ -47,14 +68,19 @@ public struct ViewerFeature {
             self.isFavorite = isFavorite
             self.isFavoriteLoading = isFavoriteLoading
             self.isLoading = isLoading
+            self.destination = destination
         }
     }
 
     public enum Action {
         /// 閉じるボタンタップ時の `Action`.
         case closeButtonTapped
+        /// 画面遷移用の `Action`.
+        case destination(PresentationAction<Destination.Action>)
         /// お気に入りボタンタップ時の `Action`.
         case favoriteButtonTapped
+        /// 作品詳細ボタンタップ時の `Action`.
+        case informationButtonTapped
         /// Pager のページが切り替わった時の `Action`.
         case pageChanged(Int)
         /// 非同期処理完了後の `Action`.
@@ -99,6 +125,13 @@ public struct ViewerFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .closeButtonTapped:
+                return .run { _ in
+                    await self.dismiss()
+                }
+            case .destination:
+
+                return .none
             case .favoriteButtonTapped:
                 guard let uid = self.authClient.uid(),
                       let book = state.book else {
@@ -119,10 +152,18 @@ public struct ViewerFeature {
                         )
                     )
                 }
-            case .closeButtonTapped:
-                return .run { _ in
-                    await self.dismiss()
+            case .informationButtonTapped:
+                guard let book = state.book else {
+                    return .none
                 }
+
+                state.destination = .book(
+                    BookFeature.State(
+                        book: book
+                    )
+                )
+
+                return .none
             case let .pageChanged(pageIndex):
                 guard let imageURLsCount = state.book?.imageURLs.count else {
                     return .none
@@ -190,6 +231,9 @@ public struct ViewerFeature {
 
                 return .none
             }
+        }
+        .ifLet(\.$destination, action: \.destination) {
+            Destination()
         }
     }
 
@@ -280,7 +324,7 @@ public struct ViewerView: View {
                     .horizontal(.endToStart)
                     .itemAspectRatio(1)
 
-                    HStack {
+                    HStack(spacing: 8) {
                         if viewStore.isFavoriteLoading {
                             ProgressView()
                                 .frame(width: 24, height: 24)
@@ -290,14 +334,18 @@ public struct ViewerView: View {
                             }
                         }
 
-                        Spacer()
-                            .frame(width: 8)
-
                         Slider(
                             value: viewStore.binding(get: \.sliderValue, send: { .sliderValueChanged($0) }),
                             in: 0...Double(book.imageURLs.count - 1),
                             step: 1
                         )
+
+                        Button {
+                            viewStore.send(.informationButtonTapped)
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .frame(width: 24, height: 24)
+                        }
                     }
                     .padding()
                 }
@@ -319,6 +367,16 @@ public struct ViewerView: View {
         }
         .task {
             store.send(.task)
+        }
+        .sheet(
+            store: store.scope(
+                state: \.$destination.book,
+                action: \.destination.book
+            )
+        ) { store in
+            NavigationStack {
+                BookView(store: store)
+            }
         }
     }
 

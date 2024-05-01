@@ -197,6 +197,7 @@ let package = Package(
             name: "ViewerFeature",
             dependencies: [
                 "AuthClient",
+                "BookFeature",
                 "FirestoreClient",
                 "SharedModels",
                 "SharedViews",

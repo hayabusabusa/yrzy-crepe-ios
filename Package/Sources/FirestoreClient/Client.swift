@@ -17,6 +17,8 @@ public struct FirestoreClient {
     public var fetchLatestBooks: @Sendable (LatestBooksRequest) async throws -> [Book]
     /// Firestore の `/books` から任意の日付 1 日分のデータ一覧を取得する.
     public var fetchCertainDateBooks: @Sendable (CertainDateBooksRequest) async throws -> [Book]
+    /// Firestore の `/books` から条件に一致するデータを検索して取得する.
+    public var searchBooks: @Sendable (SearchBooksRequest) async throws -> [Book]
     /// Firestore の `/books/{id}` にデータが存在するかどうかを返す.
     public var bookExists: @Sendable (String) async throws -> Bool
     /// Firestore の `/users/{userID}/favorites` にデータを追加する.
@@ -36,6 +38,7 @@ public struct FirestoreClient {
         fetchBook: @Sendable @escaping (String) async throws -> Book,
         fetchLatestBooks: @Sendable @escaping (LatestBooksRequest) async throws -> [Book],
         fetchCertainDateBooks: @Sendable @escaping (CertainDateBooksRequest) async throws -> [Book],
+        searchBooks: @Sendable @escaping (SearchBooksRequest) async throws -> [Book],
         bookExists: @Sendable @escaping (String) async throws -> Bool,
         addFavoriteBook: @Sendable @escaping (AddFavoriteBookRequest) async throws -> Void,
         fetchLatestFavoriteBooks: @Sendable @escaping (LatestFavoriteBookRequest) async throws -> [FavoriteBook],
@@ -47,6 +50,7 @@ public struct FirestoreClient {
         self.fetchBook = fetchBook
         self.fetchLatestBooks = fetchLatestBooks
         self.fetchCertainDateBooks = fetchCertainDateBooks
+        self.searchBooks = searchBooks
         self.bookExists = bookExists
         self.addFavoriteBook = addFavoriteBook
         self.fetchLatestFavoriteBooks = fetchLatestFavoriteBooks
@@ -78,7 +82,7 @@ public extension FirestoreClient {
         }
     }
     
-    /// 任意の日付 1 日文のデータを日付順に取得するためのリクエスト.
+    /// 任意の日付 1 日分のデータを日付順に取得するためのリクエスト.
     struct CertainDateBooksRequest {
         /// 取得する日付.
         public let date: Date
@@ -97,7 +101,31 @@ public extension FirestoreClient {
             self.limit = limit
         }
     }
-    
+
+    /// 作品を検索するためのリクエスト.
+    struct SearchBooksRequest {
+        /// 日付( 必須 ).
+        public let date: Date
+        /// 検索する作品のタイトル.
+        public let title: String?
+        /// 検索する作品の著者名.
+        public let author: String?
+        /// 降順にするかどうか
+        public let isDescending: Bool
+
+        public init(
+            date: Date,
+            title: String?,
+            author: String?,
+            isDescending: Bool = true
+        ) {
+            self.date = date
+            self.title = title
+            self.author = author
+            self.isDescending = isDescending
+        }
+    }
+
     /// 新しく作品をお気に入りに登録するためのリクエスト.
     struct AddFavoriteBookRequest {
         /// お気に入りしたユーザーの ID.
@@ -196,6 +224,8 @@ extension FirestoreClient: TestDependencyKey {
             []
         } fetchCertainDateBooks: { _ in
             []
+        } searchBooks: { _ in
+            []
         } bookExists: { _ in
             false
         } addFavoriteBook: { _ in
@@ -217,6 +247,8 @@ extension FirestoreClient: TestDependencyKey {
         } fetchLatestBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
         } fetchCertainDateBooks: { _ in
+            unimplemented("\(Self.self)\(#function)")
+        } searchBooks: { _ in
             unimplemented("\(Self.self)\(#function)")
         } bookExists: { _ in
             unimplemented("\(Self.self)\(#function)")

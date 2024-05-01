@@ -17,8 +17,14 @@ let package = Package(
             name: "AuthClientLive",
             targets: ["AuthClientLive"]),
         .library(
+            name: "BookFeature",
+            targets: ["BookFeature"]),
+        .library(
             name: "BookshelfFeature",
             targets: ["BookshelfFeature"]),
+        .library(
+            name: "ClipboardClient",
+            targets: ["ClipboardClient"]),
         .library(
             name: "FavoritesFeature",
             targets: ["FavoritesFeature"]),
@@ -92,6 +98,42 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ]),
         .target(
+            name: "BookshelfFeature",
+            dependencies: [
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
+            ]),
+        .target(
+            name: "BookFeature",
+            dependencies: [
+                "ClipboardClient",
+                "SharedModels",
+                "SharedExtensions",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke")
+            ]),
+        .target(
+            name: "ClipboardClient",
+            dependencies: [
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ]),
+        .target(
+            name: "FavoritesFeature",
+            dependencies: [
+                "AuthClient",
+                "FirestoreClient",
+                "SharedModels",
+                "SharedExtensions",
+                "SharedViews",
+                "ViewerFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "NukeUI", package: "Nuke"),
+            ]),
+        .target(
             name: "FirebaseClient",
             dependencies: [
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -119,28 +161,6 @@ let package = Package(
                 .product(name: "FirebaseFirestoreSwift", package: "firebase-ios-sdk"),
             ]),
         .target(
-            name: "BookshelfFeature",
-            dependencies: [
-                "FirestoreClient",
-                "SharedModels",
-                "SharedExtensions",
-                "ViewerFeature",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "NukeUI", package: "Nuke")
-            ]),
-        .target(
-            name: "FavoritesFeature",
-            dependencies: [
-                "AuthClient",
-                "FirestoreClient",
-                "SharedModels",
-                "SharedExtensions",
-                "SharedViews",
-                "ViewerFeature",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "NukeUI", package: "Nuke"),
-            ]),
-        .target(
             name: "GalleryFeature",
             dependencies: [
                 "AuthClient",
@@ -148,6 +168,7 @@ let package = Package(
                 "FavoritesFeature",
                 "FirestoreClient",
                 "RandomDateGenerator",
+                "SearchFeature",
                 "SharedModels",
                 "SharedExtensions",
                 "SharedViews",
@@ -166,6 +187,7 @@ let package = Package(
                 "FirestoreClient",
                 "SharedModels",
                 "SharedExtensions",
+                "SharedViews",
                 "ViewerFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "NukeUI", package: "Nuke"),
@@ -175,11 +197,16 @@ let package = Package(
         .target(
             name: "SharedModels"),
         .target(
-            name: "SharedViews"),
+            name: "SharedViews",
+            dependencies: [
+                .product(name: "NukeUI", package: "Nuke"),
+            ]
+        ),
         .target(
             name: "ViewerFeature",
             dependencies: [
                 "AuthClient",
+                "BookFeature",
                 "FirestoreClient",
                 "SharedModels",
                 "SharedViews",

@@ -30,6 +30,8 @@ public struct BookFeature {
     public enum Action {
         /// 作者名のボタンタップ時の `Action`.
         case authorButtonTapped
+        /// 閉じるボタンタップ時の `Action`.
+        case closeButtonTapped
         /// Action Sheet 表示用の `Action`.
         case confirmationDialog(PresentationAction<ConfirmationDialog>)
         /// URL のボタンタップ時の `Action`.
@@ -47,6 +49,8 @@ public struct BookFeature {
         }
     }
 
+    @Dependency(\.dismiss) var dismiss
+
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -54,6 +58,11 @@ public struct BookFeature {
                 state.confirmationDialog = makeAuthorConfirmationDialogState(author: state.book.author)
 
                 return .none
+            case .closeButtonTapped:
+
+                return .run { _ in
+                    await self.dismiss()
+                }
             case .confirmationDialog(.presented(.copyURL)):
 
                 return .none
@@ -183,11 +192,31 @@ public struct BookView: View {
                     Text("作品情報")
                         .foregroundStyle(.secondary)
                 }
+
+                let joinedCategories = viewStore.book.categories.reduce(into: "") { $0 += $1 + " " }
+                if !joinedCategories.isEmpty {
+                    Section {
+                        Text(joinedCategories)
+                    } header: {
+                        Text("作品カテゴリー")
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             .font(.caption)
             .foregroundStyle(Color(.label))
         }
         .navigationTitle("作品詳細")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: {
+                    store.send(.closeButtonTapped)
+                }, label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color(.systemGray3))
+                })
+            }
+        }
         .confirmationDialog(
             store: store.scope(
                 state: \.$confirmationDialog,

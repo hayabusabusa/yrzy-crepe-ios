@@ -43,6 +43,14 @@
         "identifier" : "SharedExtensionsTests",
         "name" : "SharedExtensionsTests"
       }
+    },
+    {
+      "enabled" : false,
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "ClipboardClientTests",
+        "name" : "ClipboardClientTests"
+      }
     }
   ],
   "version" : 1

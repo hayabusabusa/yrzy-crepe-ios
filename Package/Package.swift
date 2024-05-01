@@ -214,6 +214,13 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke"),
                 .product(name: "SwiftUIPager", package: "SwiftUIPager"),
             ]),
+
+        // MARK: Tests
+        .testTarget(
+            name: "ClipboardClientTests",
+            dependencies: [
+                "ClipboardClient",
+            ]),
         .testTarget(
             name: "RandomDateGeneratorTests",
             dependencies: [

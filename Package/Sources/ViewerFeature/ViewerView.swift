@@ -55,6 +55,7 @@ public struct ViewerFeature {
 
         public init(
             source: Source,
+            book: Book? = nil,
             isFavorite: Bool = false,
             isFavoriteLoading: Bool = false,
             isLoading: Bool = false,
@@ -62,7 +63,7 @@ public struct ViewerFeature {
         ) {
             self.source = source
             // 既に取得済みの本を表示する場合でも画面表示後にデータを入れるので一旦 `nil` を入れておく.
-            self.book = nil
+            self.book = book
             self.pageIndex = 0
             self.sliderValue = 1
             self.isFavorite = isFavorite

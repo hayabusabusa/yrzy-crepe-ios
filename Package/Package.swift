@@ -237,5 +237,11 @@ let package = Package(
                 "SharedExtensions",
             ]
         ),
+        .testTarget(
+            name: "ViewerFeatureTests",
+            dependencies: [
+                "ViewerFeature",
+            ]
+        ),
     ]
 )

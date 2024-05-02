@@ -25,6 +25,11 @@
           "containerPath" : "container:..\/Package",
           "identifier" : "BookshelfFeatureTests",
           "name" : "BookshelfFeatureTests"
+        },
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "ViewerFeatureTests",
+          "name" : "ViewerFeatureTests"
         }
       ]
     },
@@ -43,6 +48,14 @@
       }
     },
     {
+      "enabled" : false,
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "ClipboardClientTests",
+        "name" : "ClipboardClientTests"
+      }
+    },
+    {
       "target" : {
         "containerPath" : "container:..\/Package",
         "identifier" : "RandomDateGeneratorTests",
@@ -57,11 +70,10 @@
       }
     },
     {
-      "enabled" : false,
       "target" : {
         "containerPath" : "container:..\/Package",
-        "identifier" : "ClipboardClientTests",
-        "name" : "ClipboardClientTests"
+        "identifier" : "ViewerFeatureTests",
+        "name" : "ViewerFeatureTests"
       }
     }
   ],

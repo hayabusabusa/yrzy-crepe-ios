@@ -20,6 +20,16 @@
           "containerPath" : "container:..\/Package",
           "identifier" : "SharedExtensionsTests",
           "name" : "SharedExtensionsTests"
+        },
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "BookshelfFeatureTests",
+          "name" : "BookshelfFeatureTests"
+        },
+        {
+          "containerPath" : "container:..\/Package",
+          "identifier" : "ViewerFeatureTests",
+          "name" : "ViewerFeatureTests"
         }
       ]
     },
@@ -33,6 +43,21 @@
     {
       "target" : {
         "containerPath" : "container:..\/Package",
+        "identifier" : "BookshelfFeatureTests",
+        "name" : "BookshelfFeatureTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "ClipboardClientTests",
+        "name" : "ClipboardClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..\/Package",
         "identifier" : "RandomDateGeneratorTests",
         "name" : "RandomDateGeneratorTests"
       }
@@ -42,6 +67,13 @@
         "containerPath" : "container:..\/Package",
         "identifier" : "SharedExtensionsTests",
         "name" : "SharedExtensionsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..\/Package",
+        "identifier" : "ViewerFeatureTests",
+        "name" : "ViewerFeatureTests"
       }
     }
   ],

@@ -214,6 +214,18 @@ let package = Package(
                 .product(name: "NukeUI", package: "Nuke"),
                 .product(name: "SwiftUIPager", package: "SwiftUIPager"),
             ]),
+
+        // MARK: Tests
+        .testTarget(
+            name: "BookshelfFeatureTests",
+            dependencies: [
+                "BookshelfFeature",
+            ]),
+        .testTarget(
+            name: "ClipboardClientTests",
+            dependencies: [
+                "ClipboardClient",
+            ]),
         .testTarget(
             name: "RandomDateGeneratorTests",
             dependencies: [
@@ -223,6 +235,12 @@ let package = Package(
             name: "SharedExtensionsTests",
             dependencies: [
                 "SharedExtensions",
+            ]
+        ),
+        .testTarget(
+            name: "ViewerFeatureTests",
+            dependencies: [
+                "ViewerFeature",
             ]
         ),
     ]
